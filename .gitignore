@@ -3,8 +3,12 @@
 *.tfstate.*
 *.tfvars
 *.tfvars.json
+
+# Allow dev environment tfvars (local dev platform only - no real secrets)
+!terraform/environments/dev.tfvars
 .terraform/
 .terraform.lock.hcl
+tfplan
 crash.log
 crash.*.log
 override.tf
