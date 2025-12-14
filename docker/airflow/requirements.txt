@@ -9,7 +9,6 @@ pyarrow==14.0.2
 
 # Database connectors
 psycopg2-binary==2.9.9
-sqlalchemy==2.0.25
 
 # AWS/S3 support
 boto3==1.34.21
