@@ -2,7 +2,7 @@ name: CI Testing
 
 on:
   push:
-    branches: [ main, ci-testing ]
+    branches: [ main, ci-testing, ci-cluster-integration-test ]
   pull_request:
     branches: [ main ]
 
@@ -305,10 +305,86 @@ jobs:
 
           echo "All required files exist"
 
+  cluster-integration-test:
+    name: Cluster Integration Test
+    runs-on: ubuntu-latest
+    needs: [terraform-validate, docker-build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          cpus: 2
+          memory: 4096
+          kubernetes-version: 1.28.0
+
+      - name: Verify Minikube is running
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Deploy infrastructure with Terraform
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform apply -var-file=environments/dev.tfvars -auto-approve
+        timeout-minutes: 15
+
+      - name: Wait for pods to be ready
+        run: |
+          echo "Waiting for all pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n ldp-dev --timeout=300s || true
+
+      - name: Check all pods status
+        run: |
+          echo "Checking pod status in ldp-dev namespace:"
+          kubectl get pods -n ldp-dev -o wide
+
+          # Check if all pods are running
+          NOT_RUNNING=$(kubectl get pods -n ldp-dev --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l)
+          if [ "$NOT_RUNNING" -gt 0 ]; then
+            echo "Warning: $NOT_RUNNING pod(s) are not in Running state"
+            kubectl get pods -n ldp-dev --field-selector=status.phase!=Running
+          fi
+
+      - name: Check deployments
+        run: |
+          echo "Checking deployments:"
+          kubectl get deployments -n ldp-dev
+
+      - name: Check services
+        run: |
+          echo "Checking services:"
+          kubectl get services -n ldp-dev
+
+      - name: Describe failed pods (if any)
+        if: failure()
+        run: |
+          echo "Describing pods that are not ready:"
+          kubectl get pods -n ldp-dev --field-selector=status.phase!=Running --no-headers | awk '{print $1}' | while read pod; do
+            echo "=== Describing pod: $pod ==="
+            kubectl describe pod $pod -n ldp-dev
+            echo "=== Logs for pod: $pod ==="
+            kubectl logs $pod -n ldp-dev --tail=50 || true
+          done
+
+      - name: Get all resources in namespace
+        if: always()
+        run: |
+          echo "All resources in ldp-dev namespace:"
+          kubectl get all -n ldp-dev
+
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [terraform-validate, python-lint-and-test, shellcheck, yaml-lint, docker-build, documentation, makefile-test, security-scan, project-structure]
+    needs: [terraform-validate, python-lint-and-test, shellcheck, yaml-lint, docker-build, documentation, makefile-test, security-scan, project-structure, cluster-integration-test]
     if: always()
     steps:
       - name: Check CI Results
@@ -324,3 +400,4 @@ jobs:
           echo "Makefile Test: ${{ needs.makefile-test.result }}"
           echo "Security Scan: ${{ needs.security-scan.result }}"
           echo "Project Structure: ${{ needs.project-structure.result }}"
+          echo "Cluster Integration Test: ${{ needs.cluster-integration-test.result }}"
