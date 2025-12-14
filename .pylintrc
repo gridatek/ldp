@@ -1,0 +1,66 @@
+[MASTER]
+# Use multiple processes to speed up Pylint
+jobs=0
+
+# Allow loading of arbitrary C extensions
+unsafe-load-any-extension=no
+
+# Pickle collected data for later comparisons
+persistent=yes
+
+[MESSAGES CONTROL]
+# Disable specific warnings
+disable=
+    C0103,  # Invalid name
+    C0114,  # Missing module docstring
+    C0115,  # Missing class docstring
+    C0116,  # Missing function docstring
+    R0903,  # Too few public methods
+    R0913,  # Too many arguments
+    W0212,  # Access to a protected member
+    W0703,  # Catching too general exception
+    E1101,  # Instance has no member (false positives with Spark)
+
+[REPORTS]
+# Output format
+output-format=text
+
+# Set the output format
+reports=no
+
+# Activate the evaluation score
+score=yes
+
+[BASIC]
+# Good variable names
+good-names=i,j,k,ex,Run,_,df,db
+
+# Regular expression for function/method names
+function-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression for class names
+class-rgx=[A-Z_][a-zA-Z0-9]+$
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=127
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=4
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=10
+
+# Maximum number of locals for function / method body
+max-locals=15
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branches=12
