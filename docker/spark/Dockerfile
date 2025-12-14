@@ -2,14 +2,10 @@ FROM apache/spark:3.5.0-python3
 
 USER root
 
-# Install Python packages
+# Install Python packages (use versions compatible with the base image)
 RUN pip install --no-cache-dir \
-    pyspark==3.5.0 \
-    pandas==2.1.4 \
-    numpy==1.26.3 \
-    pyarrow==14.0.2 \
-    boto3==1.34.21 \
-    s3fs==2024.2.0
+    boto3 \
+    s3fs
 
 # Copy custom Spark configurations
 COPY spark/config/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
