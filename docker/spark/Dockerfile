@@ -1,4 +1,4 @@
-FROM bitnami/spark:latest
+FROM apache/spark-py:v3.5.0
 
 USER root
 
@@ -12,16 +12,14 @@ RUN pip install --no-cache-dir \
     s3fs==2024.2.0
 
 # Copy custom Spark configurations
-COPY spark/config/spark-defaults.conf /opt/bitnami/spark/conf/spark-defaults.conf
-COPY spark/config/log4j.properties /opt/bitnami/spark/conf/log4j.properties
+COPY spark/config/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+COPY spark/config/log4j.properties /opt/spark/conf/log4j.properties
 
 # Copy Spark jobs and libraries
 COPY spark/jobs /opt/spark/jobs
 COPY spark/lib /opt/spark/lib
 
 # Copy additional JARs if needed
-COPY docker/spark/jars/* /opt/bitnami/spark/jars/ 2>/dev/null || true
-
-USER 1001
+COPY docker/spark/jars/* /opt/spark/jars/ 2>/dev/null || true
 
 WORKDIR /opt/spark
