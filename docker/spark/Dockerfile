@@ -1,4 +1,4 @@
-FROM bitnami/spark:3.5.0
+FROM bitnami/spark:3.5
 
 USER root
 
@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir \
     numpy==1.26.3 \
     pyarrow==14.0.2 \
     boto3==1.34.21 \
-    s3fs==2024.1.0
+    s3fs==2024.2.0
 
 # Copy custom Spark configurations
 COPY config/spark-defaults.conf /opt/bitnami/spark/conf/spark-defaults.conf

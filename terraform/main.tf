@@ -12,9 +12,9 @@ resource "kubernetes_namespace" "ldp" {
 module "minio" {
   source = "./modules/minio"
 
-  namespace      = kubernetes_namespace.ldp.metadata[0].name
-  root_user      = var.minio_root_user
-  root_password  = var.minio_root_password
+  namespace     = kubernetes_namespace.ldp.metadata[0].name
+  root_user     = var.minio_root_user
+  root_password = var.minio_root_password
 }
 
 # PostgreSQL Module
@@ -31,14 +31,14 @@ module "postgresql" {
 module "airflow" {
   source = "./modules/airflow"
 
-  namespace          = kubernetes_namespace.ldp.metadata[0].name
-  admin_username     = var.airflow_admin_username
-  admin_password     = var.airflow_admin_password
-  postgresql_host    = "postgresql"
-  postgresql_port    = 5432
-  postgresql_user    = var.postgresql_username
-  postgresql_pass    = var.postgresql_password
-  postgresql_db      = var.postgresql_database
+  namespace       = kubernetes_namespace.ldp.metadata[0].name
+  admin_username  = var.airflow_admin_username
+  admin_password  = var.airflow_admin_password
+  postgresql_host = "postgresql"
+  postgresql_port = 5432
+  postgresql_user = var.postgresql_username
+  postgresql_pass = var.postgresql_password
+  postgresql_db   = var.postgresql_database
 
   depends_on = [module.postgresql]
 }
