@@ -19,7 +19,6 @@ COPY spark/config/log4j.properties /opt/spark/conf/log4j.properties
 COPY spark/jobs /opt/spark/jobs
 COPY spark/lib /opt/spark/lib
 
-# Copy additional JARs if needed
-COPY docker/spark/jars/* /opt/spark/jars/ 2>/dev/null || true
+# Note: Additional JARs can be added to docker/spark/jars/ directory if needed
 
 WORKDIR /opt/spark
