@@ -12,7 +12,7 @@ RUN apt-get update && \
 USER airflow
 
 # Install Python dependencies
-COPY requirements.txt /requirements.txt
+COPY docker/airflow/requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
 # Copy DAGs and plugins (if they exist)
