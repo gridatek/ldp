@@ -1,0 +1,153 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform/
+.terraform.lock.hcl
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.rc
+.terraformrc
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+.kube/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv
+.ENV
+.env.local
+
+# Airflow
+airflow.db
+airflow.cfg
+airflow-webserver.pid
+logs/
+unittests.cfg
+webserver_config.py
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+.jupyter/
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+*.out
+
+# Data files (local testing)
+data/raw/*
+data/processed/*
+data/staging/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/staging/.gitkeep
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+.env
+.env.*
+!.env.example
+
+# MinIO/S3 local data
+.minio.sys/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Helm
+charts/*.tgz
+
+# Maven/Gradle (if using Scala/Java for Spark)
+target/
+.gradle/
+build/
+!gradle-wrapper.jar
+
+# Local development
+local/
+scratch/
