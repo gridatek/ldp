@@ -27,7 +27,7 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 # Install Terraform
 brew install terraform  # macOS
 # or
-https://developer.hashicorp.com/terraform/downloads
+https://developer.hashicorp.com/terraform/install
 
 # Install Helm
 brew install helm  # macOS
