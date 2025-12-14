@@ -13,11 +13,11 @@ RUN apt-get update && \
 USER ${NB_UID}
 
 # Install Python packages
-COPY requirements.txt /tmp/requirements.txt
+COPY docker/jupyter/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# Copy notebooks
-COPY notebooks /home/jovyan/notebooks
+# Copy notebooks (if they exist)
+# COPY spark/notebooks /home/jovyan/notebooks
 
 # Set Spark configurations
 ENV SPARK_MASTER=spark://spark-master-svc:7077
