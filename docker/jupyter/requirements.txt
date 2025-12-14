@@ -23,7 +23,7 @@ sqlalchemy==2.0.25
 psycopg2-binary==2.9.9
 
 # Iceberg
-pyiceberg==0.5.1
+# pyiceberg==0.5.1  # Disabled due to dependency conflicts with s3fs
 
 # Utilities
 pyyaml==6.0.1
