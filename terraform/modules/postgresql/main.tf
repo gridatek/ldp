@@ -26,6 +26,12 @@ resource "helm_release" "postgresql" {
       requests:
         memory: "256Mi"
         cpu: "250m"
+
+    image:
+      registry: docker.io
+      repository: postgres
+      tag: "15.6"
+      pullPolicy: IfNotPresent
     EOT
   ]
 }
