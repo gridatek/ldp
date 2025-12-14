@@ -1,0 +1,11 @@
+id,name,value,category,created_at
+1,Product A,100.50,Electronics,2024-01-01 10:00:00
+2,Product B,250.75,Clothing,2024-01-01 11:00:00
+3,Product C,75.25,Books,2024-01-01 12:00:00
+4,Product D,150.00,Electronics,2024-01-02 09:00:00
+5,Product E,50.00,Books,2024-01-02 10:00:00
+6,Product F,300.25,Furniture,2024-01-02 11:00:00
+7,Product G,125.50,Clothing,2024-01-03 08:00:00
+8,Product H,200.00,Electronics,2024-01-03 09:00:00
+9,Product I,90.75,Books,2024-01-03 10:00:00
+10,Product J,175.25,Furniture,2024-01-03 11:00:00

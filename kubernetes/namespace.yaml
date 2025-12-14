@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ldp
+  labels:
+    name: local-data-platform
+    environment: development

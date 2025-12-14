@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-config
+  namespace: ldp
+data:
+  # Airflow connections as JSON
+  connections.json: |
+    {
+      "spark_default": {
+        "conn_type": "spark",
+        "host": "spark://spark-master-svc",
+        "port": 7077,
+        "extra": {
+          "queue": "default",
+          "deploy-mode": "cluster"
+        }
+      },
+      "minio_default": {
+        "conn_type": "aws",
+        "login": "admin",
+        "password": "minioadmin",
+        "extra": {
+          "endpoint_url": "http://minio:9000",
+          "aws_access_key_id": "admin",
+          "aws_secret_access_key": "minioadmin"
+        }
+      },
+      "postgres_default": {
+        "conn_type": "postgres",
+        "host": "postgresql",
+        "port": 5432,
+        "login": "ldp",
+        "password": "ldppassword",
+        "schema": "metastore"
+      }
+    }
+
+  # Airflow variables
+  variables.json: |
+    {
+      "minio_endpoint": "http://minio:9000",
+      "minio_bucket": "datalake",
+      "spark_master": "spark://spark-master-svc:7077",
+      "iceberg_warehouse": "s3a://warehouse/"
+    }
