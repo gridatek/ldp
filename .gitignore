@@ -31,7 +31,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -47,6 +46,10 @@ MANIFEST
 *.spec
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Keep our project lib directories
+!spark/lib/
+!airflow/lib/
 
 # Virtual Environments
 venv/

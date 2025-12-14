@@ -15,6 +15,6 @@ USER airflow
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
-# Copy DAGs and plugins
-COPY --chown=airflow:root dags /opt/airflow/dags
-COPY --chown=airflow:root plugins /opt/airflow/plugins
+# Copy DAGs and plugins (if they exist)
+COPY --chown=airflow:root airflow/dags /opt/airflow/dags
+COPY --chown=airflow:root airflow/plugins /opt/airflow/plugins
