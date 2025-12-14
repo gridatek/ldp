@@ -35,8 +35,9 @@ resource "helm_release" "spark" {
 
     image:
       registry: docker.io
-      repository: bitnami/spark
-      tag: 3.5.0
+      repository: spark
+      tag: "3.5.5-python3"
+      pullPolicy: IfNotPresent
     EOT
   ]
 }
