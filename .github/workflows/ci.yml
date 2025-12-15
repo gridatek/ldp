@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.12']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -352,8 +352,8 @@ jobs:
                 restartPolicy: Never
                 containers:
                 - name: airflow-db-init
-                  image: apache/airflow:2.7.3
-                  command: ["airflow", "db", "init"]
+                  image: apache/airflow:3.0.0
+                  command: ["airflow", "db", "migrate"]
                   env:
                   - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
                     value: "postgresql://ldp:ldppassword@postgresql:5432/metastore"

@@ -1,37 +1,38 @@
 """
-Example Airflow DAG that submits a Spark job to the cluster.
+Data transformation pipeline DAG using Spark.
 """
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.operators.bash import BashOperator
 
+
 default_args = {
     'owner': 'ldp',
-    'depends_on_past': False,
+    'depends_on_past': True,
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 2,
+    'retry_delay': timedelta(minutes=10),
 }
 
 with DAG(
-    'example_spark_job',
+    'transform_pipeline',
     default_args=default_args,
-    description='Example Spark job with Iceberg',
-    schedule=timedelta(days=1),
+    description='Data transformation using Spark',
+    schedule='0 2 * * *',
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=['example', 'spark', 'iceberg'],
+    tags=['transformation', 'spark', 'etl'],
 ) as dag:
 
     start_task = BashOperator(
         task_id='start',
-        bash_command='echo "Starting Spark job pipeline"',
+        bash_command='echo "Starting data transformation pipeline"',
     )
 
-    spark_job = SparkSubmitOperator(
-        task_id='run_spark_job',
+    transform_job = SparkSubmitOperator(
+        task_id='run_transformation',
         application='/opt/spark/jobs/batch_processing.py',
         conn_id='spark_default',
         conf={
@@ -50,7 +51,7 @@ with DAG(
 
     end_task = BashOperator(
         task_id='end',
-        bash_command='echo "Spark job completed successfully"',
+        bash_command='echo "Data transformation pipeline completed"',
     )
 
-    start_task >> spark_job >> end_task
+    start_task >> transform_job >> end_task

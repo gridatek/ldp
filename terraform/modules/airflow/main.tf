@@ -3,16 +3,16 @@ resource "helm_release" "airflow" {
   repository = "https://airflow.apache.org"
   chart      = "airflow"
   namespace  = var.namespace
-  version    = "1.11.0"
+  version    = "2.0.0"
 
   values = [
     <<-EOT
     executor: "KubernetesExecutor"
 
-    airflowVersion: "2.7.3"
+    airflowVersion: "3.0.0"
 
     defaultAirflowRepository: apache/airflow
-    defaultAirflowTag: "2.7.3"
+    defaultAirflowTag: "3.0.0"
 
     webserver:
       service:
