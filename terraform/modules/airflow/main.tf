@@ -3,16 +3,16 @@ resource "helm_release" "airflow" {
   repository = "https://airflow.apache.org"
   chart      = "airflow"
   namespace  = var.namespace
-  version    = "1.11.0"
+  version    = "1.18.0"
 
   values = [
     <<-EOT
     executor: "KubernetesExecutor"
 
-    airflowVersion: "2.7.3"
+    airflowVersion: "3.0.2"
 
     defaultAirflowRepository: apache/airflow
-    defaultAirflowTag: "2.7.3"
+    defaultAirflowTag: "3.0.2"
 
     webserver:
       service:
@@ -30,6 +30,13 @@ resource "helm_release" "airflow" {
         firstName: Admin
         lastName: User
         role: Admin
+
+    apiServer:
+      replicas: 1
+      allowPodLogReading: true
+
+    migrateDatabaseJob:
+      enabled: true
 
     postgresql:
       enabled: false
