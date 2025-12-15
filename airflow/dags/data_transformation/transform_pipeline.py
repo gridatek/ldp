@@ -18,7 +18,7 @@ with DAG(
     'transform_pipeline',
     default_args=default_args,
     description='Transform raw data using Spark',
-    schedule_interval='0 2 * * *',  # Run daily at 2 AM
+    schedule='0 2 * * *',  # Run daily at 2 AM
     catchup=False,
     tags=['transformation', 'spark', 'iceberg'],
 ) as dag:

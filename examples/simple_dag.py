@@ -22,7 +22,7 @@ with DAG(
         'retry_delay': timedelta(minutes=5),
     },
     description='A simple example DAG',
-    schedule_interval=timedelta(days=1),
+    schedule=timedelta(days=1),
     catchup=False,
     tags=['example'],
 ) as dag:
