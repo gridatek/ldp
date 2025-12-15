@@ -1,5 +1,5 @@
 output "master_service_name" {
-  value       = "spark-master-svc"
+  value       = "spark-master"
   description = "Spark master service name"
 }
 

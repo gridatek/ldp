@@ -1,31 +1,128 @@
-resource "helm_release" "postgresql" {
-  name       = "postgresql"
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "postgresql"
-  namespace  = var.namespace
-  version    = "13.2.24"
+resource "kubernetes_stateful_set" "postgresql" {
+  metadata {
+    name      = "postgresql"
+    namespace = var.namespace
+    labels = {
+      app = "postgresql"
+    }
+  }
 
-  values = [
-    <<-EOT
-    auth:
-      username: ${var.username}
-      password: ${var.password}
-      database: ${var.database}
+  spec {
+    service_name = "postgresql"
+    replicas     = 1
 
-    primary:
-      persistence:
-        enabled: true
-        size: ${var.persistence_size}
+    selector {
+      match_labels = {
+        app = "postgresql"
+      }
+    }
 
-      service:
-        type: NodePort
-        nodePorts:
-          postgresql: ${var.nodeport}
+    template {
+      metadata {
+        labels = {
+          app = "postgresql"
+        }
+      }
 
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "250m"
-    EOT
-  ]
+      spec {
+        container {
+          name  = "postgresql"
+          image = "postgres:16"
+
+          env {
+            name  = "POSTGRES_USER"
+            value = var.username
+          }
+
+          env {
+            name  = "POSTGRES_PASSWORD"
+            value = var.password
+          }
+
+          env {
+            name  = "POSTGRES_DB"
+            value = var.database
+          }
+
+          env {
+            name  = "PGDATA"
+            value = "/var/lib/postgresql/data/pgdata"
+          }
+
+          port {
+            container_port = 5432
+            name           = "postgresql"
+          }
+
+          volume_mount {
+            name       = "data"
+            mount_path = "/var/lib/postgresql/data"
+          }
+
+          resources {
+            requests = {
+              memory = "256Mi"
+              cpu    = "250m"
+            }
+          }
+        }
+      }
+    }
+
+    volume_claim_template {
+      metadata {
+        name = "data"
+      }
+
+      spec {
+        access_modes = ["ReadWriteOnce"]
+        resources {
+          requests = {
+            storage = var.persistence_size
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "postgresql" {
+  metadata {
+    name      = "postgresql"
+    namespace = var.namespace
+  }
+
+  spec {
+    type = "NodePort"
+
+    selector = {
+      app = "postgresql"
+    }
+
+    port {
+      port        = 5432
+      target_port = 5432
+      node_port   = var.nodeport
+    }
+  }
+}
+
+resource "kubernetes_service" "postgresql_headless" {
+  metadata {
+    name      = "postgresql-headless"
+    namespace = var.namespace
+  }
+
+  spec {
+    cluster_ip = "None"
+
+    selector = {
+      app = "postgresql"
+    }
+
+    port {
+      port        = 5432
+      target_port = 5432
+    }
+  }
 }
