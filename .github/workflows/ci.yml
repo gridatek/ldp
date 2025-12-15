@@ -337,6 +337,31 @@ jobs:
           terraform apply -var-file=environments/dev.tfvars -auto-approve
         timeout-minutes: 15
 
+      - name: Run Airflow database migrations
+        run: |
+          echo "Running Airflow database migrations..."
+          kubectl apply -f - <<EOF
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: airflow-db-init
+            namespace: ldp-dev
+          spec:
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                - name: airflow-db-init
+                  image: apache/airflow:2.7.3
+                  command: ["airflow", "db", "init"]
+                  env:
+                  - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+                    value: "postgresql://ldp:ldppassword@postgresql:5432/metastore"
+                  - name: AIRFLOW__CORE__EXECUTOR
+                    value: "KubernetesExecutor"
+          EOF
+          kubectl wait --for=condition=complete job/airflow-db-init -n ldp-dev --timeout=120s
+
       - name: Wait for pods to be ready
         run: |
           echo "Waiting for all pods to be ready..."
