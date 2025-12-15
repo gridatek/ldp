@@ -31,6 +31,11 @@ resource "helm_release" "airflow" {
         lastName: User
         role: Admin
 
+    apiServer:
+      enabled: true
+      replicas: 1
+      allowPodLogReading: true
+
     postgresql:
       enabled: false
 
