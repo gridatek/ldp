@@ -20,7 +20,7 @@ with DAG(
     'example_spark_job',
     default_args=default_args,
     description='Example Spark job with Iceberg',
-    schedule_interval=timedelta(days=1),
+    schedule=timedelta(days=1),
     catchup=False,
     tags=['example', 'spark', 'iceberg'],
 ) as dag:

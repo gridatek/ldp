@@ -35,7 +35,7 @@ with DAG(
     'ingest_daily_data',
     default_args=default_args,
     description='Daily data ingestion to MinIO',
-    schedule_interval='0 1 * * *',  # Run daily at 1 AM
+    schedule='0 1 * * *',  # Run daily at 1 AM
     catchup=False,
     tags=['ingestion', 'daily', 'minio'],
 ) as dag:
@@ -43,5 +43,4 @@ with DAG(
     ingest_task = PythonOperator(
         task_id='upload_to_minio',
         python_callable=upload_to_minio,
-        provide_context=True,
     )
