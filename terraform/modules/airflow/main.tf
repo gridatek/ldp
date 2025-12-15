@@ -14,17 +14,15 @@ resource "helm_release" "airflow" {
     defaultAirflowRepository: apache/airflow
     defaultAirflowTag: "3.0.0"
 
-    # API Server configuration for Airflow 3.0
-    apiServer:
+    # Webserver configuration
+    webserver:
+      replicas: 1
       service:
         type: NodePort
         ports:
-          - name: api-server
-            port: 9091
+          - name: airflow-ui
+            port: 8080
             nodePort: ${var.webserver_nodeport}
-
-    # Webserver configuration (still used for UI and default user)
-    webserver:
       defaultUser:
         enabled: true
         username: ${var.admin_username}
@@ -33,7 +31,32 @@ resource "helm_release" "airflow" {
         firstName: Admin
         lastName: User
         role: Admin
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
 
+    # Scheduler configuration
+    scheduler:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+
+    # Triggerer configuration
+    triggerer:
+      enabled: false
+
+    # Disable flower
+    flower:
+      enabled: false
+
+    # Disable statsd
+    statsd:
+      enabled: false
+
+    # Use external PostgreSQL
     postgresql:
       enabled: false
 
@@ -46,16 +69,22 @@ resource "helm_release" "airflow" {
         port: ${var.postgresql_port}
         db: ${var.postgresql_db}
 
+    # Disable persistence for CI environments
     dags:
       persistence:
-        enabled: true
-        size: ${var.dags_persistence_size}
+        enabled: false
+      gitSync:
+        enabled: false
 
     logs:
       persistence:
-        enabled: true
-        size: ${var.logs_persistence_size}
+        enabled: false
 
+    # Disable migrations job wait (handled separately)
+    migrateDatabaseJob:
+      enabled: false
+
+    # Environment variables
     env:
       - name: AIRFLOW__CORE__LOAD_EXAMPLES
         value: "False"
@@ -65,4 +94,5 @@ resource "helm_release" "airflow" {
   ]
 
   timeout = 600
+  wait    = false
 }
