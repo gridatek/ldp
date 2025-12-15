@@ -14,15 +14,17 @@ resource "helm_release" "airflow" {
     defaultAirflowRepository: apache/airflow
     defaultAirflowTag: "3.0.0"
 
-    # Airflow 3.0 uses apiServer instead of webserver
+    # API Server configuration for Airflow 3.0
     apiServer:
       service:
         type: NodePort
         ports:
-          - name: airflow-ui
-            port: 8080
+          - name: api-server
+            port: 9091
             nodePort: ${var.webserver_nodeport}
 
+    # Webserver configuration (still used for UI and default user)
+    webserver:
       defaultUser:
         enabled: true
         username: ${var.admin_username}
