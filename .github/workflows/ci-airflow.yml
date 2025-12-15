@@ -1,0 +1,71 @@
+name: Airflow CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'airflow/**'
+      - 'docker/airflow/**'
+      - '.github/workflows/ci-airflow.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'airflow/**'
+      - 'docker/airflow/**'
+  workflow_dispatch:
+
+jobs:
+  test-dags:
+    name: Test Airflow DAGs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-airflow-pip-${{ hashFiles('docker/airflow/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-airflow-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install -r docker/airflow/requirements.txt
+
+      - name: Lint DAGs with flake8
+        run: |
+          pip install flake8
+          flake8 airflow/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 airflow/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Test DAG imports
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:${PWD}/airflow"
+          pytest airflow/tests/ -v --tb=short
+
+  build-image:
+    name: Build Airflow Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Airflow image
+        run: |
+          docker build -f docker/airflow/Dockerfile -t ldp-airflow:test .
+
+      - name: Test image
+        run: |
+          docker run --rm ldp-airflow:test airflow version
