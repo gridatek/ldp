@@ -3,7 +3,7 @@ resource "helm_release" "airflow" {
   repository = "https://airflow.apache.org"
   chart      = "airflow"
   namespace  = var.namespace
-  version    = "2.0.0"
+  version    = "1.17.0"
 
   values = [
     <<-EOT
@@ -14,7 +14,8 @@ resource "helm_release" "airflow" {
     defaultAirflowRepository: apache/airflow
     defaultAirflowTag: "3.0.0"
 
-    webserver:
+    # Airflow 3.0 uses apiServer instead of webserver
+    apiServer:
       service:
         type: NodePort
         ports:
