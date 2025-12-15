@@ -29,6 +29,8 @@ resource "kubernetes_stateful_set" "spark_master" {
       }
 
       spec {
+        enable_service_links = false
+
         container {
           name    = "spark-master"
           image   = "apache/spark:3.5.0"

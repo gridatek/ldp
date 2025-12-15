@@ -77,6 +77,8 @@ resource "kubernetes_deployment" "jupyter" {
       }
 
       spec {
+        enable_service_links = false
+
         container {
           name  = "jupyter"
           image = "jupyter/pyspark-notebook:latest"
@@ -92,7 +94,7 @@ resource "kubernetes_deployment" "jupyter" {
 
           env {
             name  = "SPARK_MASTER"
-            value = "spark://spark-master-svc:7077"
+            value = "spark://spark-master:7077"
           }
 
           resources {
