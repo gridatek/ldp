@@ -26,6 +26,14 @@ output "platform_info" {
         username = var.postgresql_username
         password = var.postgresql_password
       }
+      prometheus = var.enable_monitoring ? {
+        url = "http://$(minikube ip):30909"
+      } : null
+      grafana = var.enable_monitoring ? {
+        url      = "http://$(minikube ip):30300"
+        username = var.grafana_admin_username
+        password = var.grafana_admin_password
+      } : null
     }
   }
   description = "Information about deployed platform services"
