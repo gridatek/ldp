@@ -310,5 +310,5 @@ terraform apply
 - [Apache Airflow Documentation](https://airflow.apache.org/docs/)
 - [Apache Spark Documentation](https://spark.apache.org/docs/latest/)
 - [Apache Iceberg Documentation](https://iceberg.apache.org/docs/latest/)
-- [MinIO Documentation](https://min.io/docs/)
+- [MinIO Documentation](https://min.io/docs/minio/linux/index.html)
 - [Minikube Documentation](https://minikube.sigs.k8s.io/docs/)

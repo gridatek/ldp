@@ -7,12 +7,12 @@ spec:
   template:
     spec:
       containers:
-      - name: mc
-        image: minio/mc:latest
-        command:
-        - /bin/sh
-        - -c
-        - |
+        - name: mc
+          image: minio/mc:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
           set -e
 
           # Wait for MinIO to be ready

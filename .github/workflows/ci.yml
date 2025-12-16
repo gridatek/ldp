@@ -1,10 +1,11 @@
+---
 name: CI Testing
 
-on:
+'on':
   push:
-    branches: [ main, ci-testing, ci-cluster-integration-test ]
+    branches: [main, ci-testing, ci-cluster-integration-test]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   terraform-validate:
@@ -237,8 +238,8 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ""
+          head: ""
         continue-on-error: true
 
   project-structure:

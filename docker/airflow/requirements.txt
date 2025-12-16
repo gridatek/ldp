@@ -11,7 +11,7 @@ pyarrow==14.0.2
 psycopg2-binary==2.9.9
 
 # AWS/S3 support
-boto3==1.34.21
+boto3>=1.37.2
 s3fs==2024.2.0
 
 # Utilities
