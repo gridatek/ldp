@@ -11,7 +11,9 @@ boto3==1.34.21
 s3fs==2024.2.0
 
 # Iceberg support (Python side)
-# pyiceberg==0.5.1  # Disabled due to dependency conflicts with s3fs
+# PyIceberg requires compatible fsspec version
+# Using pyiceberg 0.6.0+ which has better compatibility with s3fs
+pyiceberg[s3fs]==0.6.1
 
 # Utilities
 pyyaml==6.0.1
