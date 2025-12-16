@@ -8,6 +8,25 @@ resource "kubernetes_namespace" "ldp" {
   }
 }
 
+# Kubernetes Secret for platform credentials
+resource "kubernetes_secret" "platform_secrets" {
+  metadata {
+    name      = "platform-secrets"
+    namespace = kubernetes_namespace.ldp.metadata[0].name
+  }
+
+  data = {
+    "minio-root-user"       = var.minio_root_user
+    "minio-root-password"   = var.minio_root_password
+    "postgresql-username"   = var.postgresql_username
+    "postgresql-password"   = var.postgresql_password
+    "airflow-admin-user"    = var.airflow_admin_username
+    "airflow-admin-password" = var.airflow_admin_password
+  }
+
+  type = "Opaque"
+}
+
 # MinIO Module
 module "minio" {
   source = "./modules/minio"
@@ -128,4 +147,16 @@ resource "kubernetes_service" "jupyter" {
       node_port   = 30888
     }
   }
+}
+
+# Monitoring Module (Prometheus & Grafana)
+module "monitoring" {
+  count  = var.enable_monitoring ? 1 : 0
+  source = "./modules/monitoring"
+
+  namespace              = kubernetes_namespace.ldp.metadata[0].name
+  grafana_admin_user     = var.grafana_admin_username
+  grafana_admin_password = var.grafana_admin_password
+
+  depends_on = [module.airflow, module.spark]
 }
