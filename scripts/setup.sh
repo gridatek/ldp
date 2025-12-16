@@ -24,7 +24,7 @@ if ! minikube status &>/dev/null; then
         --cpus=4 \
         --memory=8192 \
         --disk-size=50g \
-        --kubernetes-version=v1.28.0
+        --kubernetes-version=v1.34.0
 
     # Enable addons
     minikube addons enable storage-provisioner
