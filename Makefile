@@ -1,10 +1,16 @@
-.PHONY: help setup start stop cleanup health test init-minio port-forward
+.PHONY: help setup start stop cleanup health test init-minio port-forward local local-stop local-reset
 
 # Default target
 help:
 	@echo "Local Data Platform - Make Commands"
 	@echo ""
-	@echo "Setup & Deployment:"
+	@echo "Local Development (No Docker/K8s required):"
+	@echo "  make local        - Start Airflow standalone (Python only)"
+	@echo "  make local-stop   - Stop local Airflow"
+	@echo "  make local-reset  - Reset local Airflow data"
+	@echo "  make local-status - Check local Airflow status"
+	@echo ""
+	@echo "Kubernetes Deployment (requires Minikube):"
 	@echo "  make setup       - Initial setup (start Minikube, enable addons)"
 	@echo "  make start       - Deploy the platform using Terraform"
 	@echo "  make stop        - Stop the platform (destroy Terraform resources)"
@@ -47,6 +53,19 @@ stop:
 
 cleanup:
 	@./scripts/cleanup.sh
+
+# Local Development (No Docker/Kubernetes required)
+local:
+	@./scripts/local-airflow.sh start
+
+local-stop:
+	@./scripts/local-airflow.sh stop
+
+local-reset:
+	@./scripts/local-airflow.sh reset
+
+local-status:
+	@./scripts/local-airflow.sh status
 
 # Operations
 health:
