@@ -21,14 +21,15 @@ def upload_to_minio(**context):
     s3_hook = S3Hook(aws_conn_id='minio_default')
 
     # Example: Upload a file to MinIO
-    execution_date = context['execution_date'].strftime('%Y-%m-%d')
+    # Use logical_date instead of deprecated execution_date (Airflow 3.0)
+    logical_date = context['logical_date'].strftime('%Y-%m-%d')
     s3_hook.load_string(
-        string_data=f"Sample data for {execution_date}",
-        key=f"raw/daily/{execution_date}/data.txt",
+        string_data=f"Sample data for {logical_date}",
+        key=f"raw/daily/{logical_date}/data.txt",
         bucket_name='datalake',
         replace=True
     )
-    print(f"Uploaded data for {execution_date} to MinIO")
+    print(f"Uploaded data for {logical_date} to MinIO")
 
 
 with DAG(
