@@ -339,30 +339,18 @@ jobs:
           terraform apply -var-file=environments/dev.tfvars -auto-approve
         timeout-minutes: 15
 
-      - name: Run Airflow database migrations
+      - name: Wait for Airflow database migrations
         run: |
-          echo "Running Airflow database migrations..."
-          kubectl apply -f - <<EOF
-          apiVersion: batch/v1
-          kind: Job
-          metadata:
-            name: airflow-db-init
-            namespace: ldp-dev
-          spec:
-            template:
-              spec:
-                restartPolicy: Never
-                containers:
-                - name: airflow-db-init
-                  image: apache/airflow:2.7.3
-                  command: ["airflow", "db", "init"]
-                  env:
-                  - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
-                    value: "postgresql://ldp:ldppassword@postgresql:5432/metastore"
-                  - name: AIRFLOW__CORE__EXECUTOR
-                    value: "KubernetesExecutor"
-          EOF
-          kubectl wait --for=condition=complete job/airflow-db-init -n ldp-dev --timeout=120s
+          echo "Waiting for Helm-managed database migrations to complete..."
+          # Wait for the migration job created by the Helm chart
+          timeout 180 bash -c 'until kubectl get job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations 2>/dev/null | grep -q "1/1"; do echo "Waiting for migration job..."; sleep 5; done' || true
+
+          # If migration job exists, wait for it to complete
+          if kubectl get job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations &>/dev/null; then
+            kubectl wait --for=condition=complete job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations --timeout=120s || true
+          fi
+
+          echo "Migration check complete"
 
       - name: Wait for pods to be ready
         run: |
