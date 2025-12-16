@@ -1,4 +1,4 @@
-.PHONY: help setup start stop cleanup health test init-minio port-forward
+.PHONY: help setup start stop cleanup health test init-minio port-forward troubleshoot
 
 # Default target
 help:
@@ -17,12 +17,23 @@ help:
 	@echo "  make pods        - List all pods in ldp namespace"
 	@echo "  make services    - List all services"
 	@echo ""
+	@echo "Troubleshooting:"
+	@echo "  make troubleshoot      - Run quick diagnostics"
+	@echo "  make troubleshoot-full - Run full diagnostic check"
+	@echo "  make export-logs       - Export all logs to ./logs/"
+	@echo "  make events            - Show recent Kubernetes events"
+	@echo ""
+	@echo "Monitoring:"
+	@echo "  make import-dashboards - Import Grafana dashboards"
+	@echo ""
 	@echo "Port Forwarding:"
 	@echo "  make airflow-forward   - Forward Airflow UI (localhost:8080)"
 	@echo "  make minio-forward     - Forward MinIO Console (localhost:9001)"
 	@echo "  make spark-forward     - Forward Spark UI (localhost:8080)"
 	@echo "  make jupyter-forward   - Forward Jupyter (localhost:8888)"
 	@echo "  make postgres-forward  - Forward PostgreSQL (localhost:5432)"
+	@echo "  make grafana-forward   - Forward Grafana (localhost:3000)"
+	@echo "  make prometheus-forward - Forward Prometheus (localhost:9090)"
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test        - Run all tests"
@@ -82,6 +93,43 @@ jupyter-forward:
 
 postgres-forward:
 	@./scripts/port-forward.sh postgres
+
+grafana-forward:
+	@echo "Port forwarding Grafana (http://localhost:3000)..."
+	@kubectl port-forward -n ldp svc/grafana 3000:3000
+
+prometheus-forward:
+	@echo "Port forwarding Prometheus (http://localhost:9090)..."
+	@kubectl port-forward -n ldp svc/prometheus 9090:9090
+
+# Troubleshooting
+troubleshoot:
+	@./scripts/troubleshoot.sh --quick
+
+troubleshoot-full:
+	@./scripts/troubleshoot.sh --full
+
+export-logs:
+	@./scripts/troubleshoot.sh --export-logs
+
+events:
+	@kubectl get events -n ldp --sort-by='.lastTimestamp' | tail -30
+
+logs-airflow:
+	@kubectl logs -n ldp -l component=webserver --tail=100 -f
+
+logs-scheduler:
+	@kubectl logs -n ldp -l component=scheduler --tail=100 -f
+
+logs-spark:
+	@kubectl logs -n ldp -l app=spark-master --tail=100 -f
+
+logs-minio:
+	@kubectl logs -n ldp -l app=minio --tail=100 -f
+
+# Monitoring
+import-dashboards:
+	@./monitoring/import-dashboards.sh
 
 # Testing
 test: test-unit test-int
