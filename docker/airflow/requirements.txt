@@ -1,6 +1,6 @@
-# Airflow providers
-apache-airflow-providers-apache-spark==4.5.0
-apache-airflow-providers-amazon==8.15.0
+# Airflow providers (Airflow 3.0 compatible)
+apache-airflow-providers-apache-spark>=5.0.0
+apache-airflow-providers-amazon>=9.0.0
 
 # Data processing libraries
 pandas==2.1.4
