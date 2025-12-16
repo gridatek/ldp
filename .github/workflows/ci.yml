@@ -3,9 +3,8 @@ name: CI Testing
 
 'on':
   push:
-    branches: [main, ci-testing, ci-cluster-integration-test]
-  pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   terraform-validate:
