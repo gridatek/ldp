@@ -37,6 +37,14 @@ resource "helm_release" "airflow" {
 
     migrateDatabaseJob:
       enabled: true
+      useHelmHooks: false
+      applyCustomEnv: false
+      ttlSecondsAfterFinished: 300
+
+    createUserJob:
+      useHelmHooks: false
+      applyCustomEnv: false
+      ttlSecondsAfterFinished: 300
 
     postgresql:
       enabled: false
