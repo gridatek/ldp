@@ -16,11 +16,11 @@ resource "kubernetes_secret" "platform_secrets" {
   }
 
   data = {
-    "minio-root-user"       = var.minio_root_user
-    "minio-root-password"   = var.minio_root_password
-    "postgresql-username"   = var.postgresql_username
-    "postgresql-password"   = var.postgresql_password
-    "airflow-admin-user"    = var.airflow_admin_username
+    "minio-root-user"        = var.minio_root_user
+    "minio-root-password"    = var.minio_root_password
+    "postgresql-username"    = var.postgresql_username
+    "postgresql-password"    = var.postgresql_password
+    "airflow-admin-user"     = var.airflow_admin_username
     "airflow-admin-password" = var.airflow_admin_password
   }
 

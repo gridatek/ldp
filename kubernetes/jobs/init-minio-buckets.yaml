@@ -13,28 +13,28 @@ spec:
             - /bin/sh
             - -c
             - |
-          set -e
+              set -e
 
-          # Wait for MinIO to be ready
-          until mc alias set ldp http://minio:9000 admin minioadmin; do
-            echo "Waiting for MinIO..."
-            sleep 5
-          done
+              # Wait for MinIO to be ready
+              until mc alias set ldp http://minio:9000 admin minioadmin; do
+                echo "Waiting for MinIO..."
+                sleep 5
+              done
 
-          # Create buckets if they don't exist
-          mc mb --ignore-existing ldp/warehouse
-          mc mb --ignore-existing ldp/datalake
-          mc mb --ignore-existing ldp/raw
-          mc mb --ignore-existing ldp/processed
-          mc mb --ignore-existing ldp/staging
+              # Create buckets if they don't exist
+              mc mb --ignore-existing ldp/warehouse
+              mc mb --ignore-existing ldp/datalake
+              mc mb --ignore-existing ldp/raw
+              mc mb --ignore-existing ldp/processed
+              mc mb --ignore-existing ldp/staging
 
-          # Create subdirectories
-          mc cp /dev/null ldp/warehouse/.keep
-          mc cp /dev/null ldp/datalake/.keep
-          mc cp /dev/null ldp/raw/.keep
-          mc cp /dev/null ldp/processed/.keep
-          mc cp /dev/null ldp/staging/.keep
+              # Create subdirectories
+              mc cp /dev/null ldp/warehouse/.keep
+              mc cp /dev/null ldp/datalake/.keep
+              mc cp /dev/null ldp/raw/.keep
+              mc cp /dev/null ldp/processed/.keep
+              mc cp /dev/null ldp/staging/.keep
 
-          echo "MinIO buckets initialized successfully"
+              echo "MinIO buckets initialized successfully"
       restartPolicy: OnFailure
   backoffLimit: 3

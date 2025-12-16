@@ -155,7 +155,7 @@ check_events() {
 }
 
 check_component() {
-    local component=$1
+    local _component=$1
     local label=$2
     local name=$3
 
