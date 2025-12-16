@@ -1,10 +1,11 @@
+---
 name: CI Testing
 
-on:
+'on':
   push:
-    branches: [ main, ci-testing, ci-cluster-integration-test ]
+    branches: [main, ci-testing, ci-cluster-integration-test]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   terraform-validate:
@@ -75,7 +76,8 @@ jobs:
           # Stop the build if there are Python syntax errors or undefined names
           flake8 airflow/ spark/ tests/ examples/ --count --select=E9,F63,F7,F82 --show-source --statistics
           # Exit-zero treats all errors as warnings
-          flake8 airflow/ spark/ tests/ examples/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 airflow/ spark/ tests/ examples/ --count --exit-zero \
+            --max-complexity=10 --max-line-length=127 --statistics
         continue-on-error: true
 
       - name: Check code formatting with black
@@ -237,8 +239,8 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ""
+          head: ""
         continue-on-error: true
 
   project-structure:
@@ -373,7 +375,8 @@ jobs:
           kubectl get pods -n ldp-dev -o wide
 
           # Check if all pods are running
-          NOT_RUNNING=$(kubectl get pods -n ldp-dev --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l)
+          NOT_RUNNING=$(kubectl get pods -n ldp-dev \
+            --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l)
           if [ "$NOT_RUNNING" -gt 0 ]; then
             echo "Warning: $NOT_RUNNING pod(s) are not in Running state"
             kubectl get pods -n ldp-dev --field-selector=status.phase!=Running
@@ -393,7 +396,8 @@ jobs:
         if: failure()
         run: |
           echo "Describing pods that are not ready:"
-          kubectl get pods -n ldp-dev --field-selector=status.phase!=Running --no-headers | awk '{print $1}' | while read pod; do
+          kubectl get pods -n ldp-dev --field-selector=status.phase!=Running \
+            --no-headers | awk '{print $1}' | while read pod; do
             echo "=== Describing pod: $pod ==="
             kubectl describe pod $pod -n ldp-dev
             echo "=== Logs for pod: $pod ==="
@@ -409,7 +413,17 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [terraform-validate, python-lint-and-test, shellcheck, yaml-lint, docker-build, documentation, makefile-test, security-scan, project-structure, cluster-integration-test]
+    needs:
+      - terraform-validate
+      - python-lint-and-test
+      - shellcheck
+      - yaml-lint
+      - docker-build
+      - documentation
+      - makefile-test
+      - security-scan
+      - project-structure
+      - cluster-integration-test
     if: always()
     steps:
       - name: Check CI Results
