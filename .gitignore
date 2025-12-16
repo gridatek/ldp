@@ -63,6 +63,10 @@ env/
 .ENV
 .env.local
 
+# Keep config/env for environment templates
+!config/env/
+!config/env/.env.example
+
 # Airflow
 airflow.db
 airflow.cfg
