@@ -344,11 +344,11 @@ jobs:
         run: |
           echo "Waiting for Helm-managed database migrations to complete..."
           # Wait for the migration job created by the Helm chart
-          timeout 180 bash -c 'until kubectl get job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations 2>/dev/null | grep -q "1/1"; do echo "Waiting for migration job..."; sleep 5; done' || true
+          timeout 180 bash -c 'until kubectl get job -n ldp -l app.kubernetes.io/component=run-airflow-migrations 2>/dev/null | grep -q "1/1"; do echo "Waiting for migration job..."; sleep 5; done' || true
 
           # If migration job exists, wait for it to complete
-          if kubectl get job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations &>/dev/null; then
-            kubectl wait --for=condition=complete job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations --timeout=120s || true
+          if kubectl get job -n ldp -l app.kubernetes.io/component=run-airflow-migrations &>/dev/null; then
+            kubectl wait --for=condition=complete job -n ldp -l app.kubernetes.io/component=run-airflow-migrations --timeout=120s || true
           fi
 
           echo "Migration check complete"
@@ -356,35 +356,36 @@ jobs:
       - name: Wait for pods to be ready
         run: |
           echo "Waiting for all pods to be ready..."
-          kubectl wait --for=condition=ready pod --all -n ldp-dev --timeout=300s || true
+          kubectl wait --for=condition=ready pod --all -n ldp --timeout=300s || true
 
       - name: Check all pods status
         run: |
-          echo "Checking pod status in ldp-dev namespace:"
-          kubectl get pods -n ldp-dev -o wide
+          echo "Checking pod status in ldp namespace:"
+          kubectl get pods -n ldp -o wide
 
           # Check if all pods are running
-          NOT_RUNNING=$(kubectl get pods -n ldp-dev \
+          NOT_RUNNING=$(kubectl get pods -n ldp \
             --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l)
           if [ "$NOT_RUNNING" -gt 0 ]; then
             echo "Warning: $NOT_RUNNING pod(s) are not in Running state"
-            kubectl get pods -n ldp-dev --field-selector=status.phase!=Running
+            kubectl get pods -n ldp --field-selector=status.phase!=Running
           fi
 
       - name: Check deployments
         run: |
           echo "Checking deployments:"
-          kubectl get deployments -n ldp-dev
+          kubectl get deployments -n ldp
 
       - name: Check services
         run: |
           echo "Checking services:"
-          kubectl get services -n ldp-dev
+          kubectl get services -n ldp
 
       - name: Initialize MinIO buckets
         run: |
           echo "Creating MinIO buckets..."
-          kubectl apply -f kubernetes/jobs/init-minio-buckets.yaml
+          # Create job in ldp namespace (override the hardcoded namespace)
+          sed 's/namespace: ldp$/namespace: ldp/' kubernetes/jobs/init-minio-buckets.yaml | kubectl apply -f -
           kubectl wait --for=condition=complete job/init-minio-buckets -n ldp --timeout=60s || true
 
       - name: Upload test data to MinIO
@@ -400,9 +401,9 @@ jobs:
           EOF
 
           echo "Uploading test data to MinIO..."
-          MINIO_POD=$(kubectl get pod -n ldp-dev -l app=minio -o jsonpath='{.items[0].metadata.name}')
-          kubectl exec -n ldp-dev $MINIO_POD -- mkdir -p /data/datalake/raw/test/
-          kubectl cp /tmp/sample_data.csv ldp-dev/$MINIO_POD:/data/datalake/raw/test/sample_data.csv
+          MINIO_POD=$(kubectl get pod -n ldp -l app=minio -o jsonpath='{.items[0].metadata.name}')
+          kubectl exec -n ldp $MINIO_POD -- mkdir -p /data/datalake/raw/test/
+          kubectl cp /tmp/sample_data.csv ldp/$MINIO_POD:/data/datalake/raw/test/sample_data.csv
           echo "Test data uploaded successfully"
 
       - name: Test complete data pipeline
@@ -411,10 +412,10 @@ jobs:
 
           # Wait for Airflow webserver to be ready
           echo "Waiting for Airflow to be ready..."
-          kubectl wait --for=condition=ready pod -n ldp-dev -l component=webserver --timeout=120s || true
+          kubectl wait --for=condition=ready pod -n ldp -l component=webserver --timeout=120s || true
 
           # Port forward Airflow (in background)
-          kubectl port-forward -n ldp-dev svc/airflow-webserver 8080:8080 &
+          kubectl port-forward -n ldp svc/airflow-webserver 8080:8080 &
           sleep 10
 
           # Trigger the example DAG via REST API
@@ -435,19 +436,19 @@ jobs:
         if: failure()
         run: |
           echo "Describing pods that are not ready:"
-          kubectl get pods -n ldp-dev --field-selector=status.phase!=Running \
+          kubectl get pods -n ldp --field-selector=status.phase!=Running \
             --no-headers | awk '{print $1}' | while read pod; do
             echo "=== Describing pod: $pod ==="
-            kubectl describe pod $pod -n ldp-dev
+            kubectl describe pod $pod -n ldp
             echo "=== Logs for pod: $pod ==="
-            kubectl logs $pod -n ldp-dev --tail=50 || true
+            kubectl logs $pod -n ldp --tail=50 || true
           done
 
       - name: Get all resources in namespace
         if: always()
         run: |
-          echo "All resources in ldp-dev namespace:"
-          kubectl get all -n ldp-dev
+          echo "All resources in ldp namespace:"
+          kubectl get all -n ldp
 
   summary:
     name: CI Summary

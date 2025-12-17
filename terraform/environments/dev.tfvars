@@ -1,4 +1,4 @@
-namespace = "ldp-dev"
+namespace = "ldp"
 
 minio_root_user     = "admin"
 minio_root_password = "minioadmin"
