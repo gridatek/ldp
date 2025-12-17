@@ -118,7 +118,7 @@ class TestAirflowSparkIntegration:
                 conn_id="spark_default",
                 conf={
                     "spark.jars.packages": (
-                        "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.4.3"
+                        "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.10.0"
                     ),
                 },
             )
