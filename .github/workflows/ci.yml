@@ -384,12 +384,32 @@ jobs:
           echo "Checking services:"
           kubectl get services -n ldp
 
+      - name: Wait for MinIO to be ready
+        run: |
+          echo "Waiting for MinIO service to be ready..."
+          kubectl wait --for=condition=ready pod -n ldp -l app=minio --timeout=120s || true
+          echo "MinIO pod status:"
+          kubectl get pods -n ldp -l app=minio
+
       - name: Initialize MinIO buckets
         run: |
           echo "Creating MinIO buckets..."
-          # Create job in ldp namespace (override the hardcoded namespace)
-          sed 's/namespace: ldp$/namespace: ldp/' kubernetes/jobs/init-minio-buckets.yaml | kubectl apply -f -
-          kubectl wait --for=condition=complete job/init-minio-buckets -n ldp --timeout=60s || true
+          kubectl apply -f kubernetes/jobs/init-minio-buckets.yaml
+          kubectl wait --for=condition=complete job/init-minio-buckets -n ldp --timeout=180s || true
+
+          echo "Job status:"
+          kubectl get job init-minio-buckets -n ldp
+
+          if kubectl get job init-minio-buckets -n ldp -o jsonpath='{.status.succeeded}' | grep -q 1; then
+            echo "MinIO buckets initialized successfully"
+          else
+            echo "Warning: MinIO bucket initialization may have failed, checking logs..."
+            POD=$(kubectl get pods -n ldp -l job-name=init-minio-buckets \
+              -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+            if [ -n "$POD" ]; then
+              kubectl logs -n ldp $POD --tail=50 || true
+            fi
+          fi
 
       - name: Upload test data to MinIO
         run: |
