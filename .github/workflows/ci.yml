@@ -338,7 +338,7 @@ jobs:
           cd terraform
           terraform init -backend=false
           terraform apply -var-file=environments/dev.tfvars -auto-approve
-        timeout-minutes: 15
+        timeout-minutes: 20
 
       - name: Wait for Airflow database migrations
         run: |
