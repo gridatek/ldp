@@ -441,9 +441,25 @@ jobs:
       - name: Start socket_vmnet service
         run: |
           # socket_vmnet provides networking for QEMU driver
+
+          # Ensure required directories exist
+          sudo mkdir -p /var/db
+
+          # Start the service
           sudo brew services start socket_vmnet
-          # Wait for service to be ready
-          sleep 5
+
+          # Wait for service to fully initialize
+          echo "Waiting for socket_vmnet to initialize..."
+          sleep 15
+
+          # Verify service is running
+          if sudo brew services list | grep socket_vmnet | grep started; then
+            echo "✓ socket_vmnet service is running"
+          else
+            echo "✗ socket_vmnet service failed to start"
+            sudo brew services list
+            exit 1
+          fi
 
       - name: Start Minikube with QEMU
         run: |
