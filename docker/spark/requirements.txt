@@ -1,6 +1,7 @@
 # Core Spark dependencies
-# Note: PySpark 4.1.0 requires Python >= 3.10
-pyspark==4.1.0
+# Note: PySpark 4.0.1 requires Python >= 3.10
+# Using 4.0.1 instead of 4.1.0 for Apache Iceberg compatibility
+pyspark==4.0.1
 
 # Data processing
 pandas==2.3.3

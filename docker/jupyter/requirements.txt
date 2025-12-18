@@ -11,8 +11,9 @@ seaborn==0.13.1
 plotly==5.18.0
 
 # Spark
-# Note: PySpark 4.1.0 requires Python >= 3.10
-pyspark==4.1.0
+# Note: PySpark 4.0.1 requires Python >= 3.10
+# Using 4.0.1 instead of 4.1.0 for Apache Iceberg compatibility
+pyspark==4.0.1
 pyarrow==22.0.0
 
 # S3/MinIO
