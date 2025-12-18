@@ -32,9 +32,7 @@ ldp/
 │   │       └── outputs.tf
 │   │
 │   ├── environments/             # Environment-specific configs
-│   │   ├── dev.tfvars
-│   │   ├── staging.tfvars
-│   │   └── prod.tfvars
+│   │   └── local.tfvars          # Local development configuration
 │   │
 │   └── helm-values/              # Custom Helm values
 │       ├── airflow-values.yaml

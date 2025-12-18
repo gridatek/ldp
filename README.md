@@ -2,6 +2,43 @@
 
 A complete local data engineering platform running on Minikube with Apache Airflow, Apache Spark, MinIO, PostgreSQL, and Apache Iceberg.
 
+## What is LDP?
+
+**LDP is a local development and testing environment for data engineering workflows.** It brings enterprise-grade data tools to your laptop, allowing you to:
+
+- **Learn** data engineering concepts without cloud costs
+- **Develop** and test data pipelines locally before cloud deployment
+- **Prototype** new data architectures and workflows
+- **Experiment** with modern data tools (Airflow, Spark, Iceberg)
+- **Run CI/CD tests** for data pipelines
+
+### Important: Local Development Only
+
+LDP is designed to run **on your local machine** using Minikube. It is **NOT intended for production use** or cloud deployment. For production workloads, consider:
+- Managed services (AWS EMR, Google Cloud Dataproc, Azure Synapse)
+- Kubernetes clusters on cloud providers (EKS, GKE, AKS)
+- Purpose-built data platforms (Databricks, Snowflake)
+
+LDP gives you a realistic local environment to develop and test before deploying to these production platforms.
+
+## Why Use LDP?
+
+### Perfect For
+
+✅ **Data Engineering Students** - Learn industry-standard tools without AWS/GCP bills
+✅ **Pipeline Development** - Build and debug Airflow DAGs locally before cloud deployment
+✅ **Testing & CI/CD** - Run integration tests for data pipelines in GitHub Actions
+✅ **Proof of Concepts** - Validate data architecture decisions quickly
+✅ **Tool Evaluation** - Try Iceberg, Spark, or Airflow features risk-free
+
+### Not Suitable For
+
+❌ Production data workloads (use cloud services instead)
+❌ Large-scale data processing (limited by laptop resources)
+❌ Multi-user production environments
+❌ Long-running production jobs
+❌ Enterprise SLA requirements
+
 ## Features
 
 - **Apache Airflow** - Workflow orchestration and scheduling
@@ -185,14 +222,12 @@ cp config/env/.env.example .env
 ### Terraform Variables
 
 Customize deployment in `terraform/environments/`:
-- `dev.tfvars` - Development
-- `staging.tfvars` - Staging
-- `prod.tfvars` - Production
+- `local.tfvars` - Local development (default)
 
-Apply with specific environment:
+Apply with local configuration:
 ```bash
 cd terraform
-terraform apply -var-file=environments/dev.tfvars
+terraform apply -var-file=environments/local.tfvars
 ```
 
 ## Troubleshooting
@@ -240,9 +275,7 @@ Check the `examples/` directory for:
 
 ## Documentation
 
-For detailed documentation, see the `docs/` directory:
-- [Project Structure](docs/project-structure.md)
-- [Setup Guide](docs/setup-guide.md)
+See the **[Documentation Index](docs/)** for detailed guides, architecture documentation, and troubleshooting.
 
 ## Contributing
 

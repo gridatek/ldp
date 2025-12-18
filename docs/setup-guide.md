@@ -1,6 +1,11 @@
 # Local Data Platform (LDP) - Setup Guide
 
 ## Overview
+
+**LDP is a local development environment for data engineering**, designed to run entirely on your laptop using Minikube. This guide will help you set up a complete data engineering stack locally for development, testing, and learning.
+
+### What You'll Get
+
 This Local Data Platform provides a complete data engineering stack running on Minikube, including:
 - **Apache Airflow** - Workflow orchestration
 - **Apache Spark** - Distributed data processing
@@ -8,6 +13,19 @@ This Local Data Platform provides a complete data engineering stack running on M
 - **PostgreSQL** - Metadata store
 - **Jupyter** - Interactive development environment
 - **Apache Iceberg** - Table format (configured via Spark)
+
+### Use Cases
+
+LDP is perfect for:
+- **Learning**: Understanding how modern data platforms work without cloud costs
+- **Development**: Building and testing data pipelines locally before cloud deployment
+- **Experimentation**: Trying new data engineering patterns and tools
+- **CI/CD**: Automated testing of data pipelines in GitHub Actions or similar
+- **Prototyping**: Validating data architectures before production implementation
+
+### Not For Production
+
+LDP runs on your laptop or in CI environments. For production data workloads, use cloud-managed services or dedicated Kubernetes clusters with proper scaling, security, and reliability features.
 
 ## Prerequisites
 
