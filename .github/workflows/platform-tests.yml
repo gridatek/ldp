@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  windows-powershell-tests:
-    name: Windows PowerShell Scripts
+  windows-integration-tests:
+    name: Windows Integration Tests
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -42,6 +42,42 @@ jobs:
             Write-Host "✓ $script is valid" -ForegroundColor Green
           }
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Format Check
+        run: |
+          cd terraform
+          terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform validate
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pylint flake8 black
+
+      - name: Lint Python code
+        run: |
+          flake8 airflow/ spark/ tests/ examples/ `
+            --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
+
       - name: Test prerequisite checking
         run: |
           Write-Host "Testing prerequisite check functions..." -ForegroundColor Cyan
@@ -54,7 +90,7 @@ jobs:
           }
 
           # These should exist on Windows runner
-          $requiredCommands = @("git", "powershell")
+          $requiredCommands = @("git", "powershell", "python")
 
           foreach ($cmd in $requiredCommands) {
             if (Test-Command $cmd) {
@@ -83,8 +119,8 @@ jobs:
             }
           }
 
-  macos-bash-tests:
-    name: macOS Bash Scripts
+  macos-integration-tests:
+    name: macOS Integration Tests
     runs-on: macos-latest
     steps:
       - name: Checkout code
@@ -130,14 +166,47 @@ jobs:
             exit 1
           fi
 
-      - name: Test Homebrew availability
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Format Check
         run: |
-          if command -v brew &> /dev/null; then
-            echo "✓ Homebrew is available"
-            brew --version
-          else
-            echo "ℹ Homebrew not installed (expected on GitHub runner)"
-          fi
+          cd terraform
+          terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform validate
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pylint flake8 black
+
+      - name: Python syntax check
+        run: |
+          echo "Checking Python syntax..."
+          python -m py_compile airflow/dags/**/*.py || true
+          python -m py_compile spark/jobs/*.py || true
+
+      - name: Lint Python code
+        run: |
+          flake8 airflow/ spark/ tests/ examples/ \
+            --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
 
       - name: Verify script files exist
         run: |
@@ -159,8 +228,8 @@ jobs:
             fi
           done
 
-  linux-bash-tests:
-    name: Linux Bash Scripts
+  linux-integration-tests:
+    name: Linux Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -205,6 +274,50 @@ jobs:
             echo "✗ Expected 'linux', got '$PLATFORM'"
             exit 1
           fi
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Format Check
+        run: |
+          cd terraform
+          terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform validate
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pylint flake8 black
+          pip install -r docker/airflow/requirements.txt || true
+          pip install -r docker/spark/requirements.txt || true
+
+      - name: Lint Python code
+        run: |
+          flake8 airflow/ spark/ tests/ examples/ \
+            --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
+
+      - name: Run Python unit tests
+        run: |
+          pytest airflow/tests/ -v --tb=short || true
+          pytest spark/tests/ -v --tb=short || true
+        continue-on-error: true
 
       - name: Make scripts executable
         run: |
@@ -268,9 +381,9 @@ jobs:
     name: Platform Test Summary
     runs-on: ubuntu-latest
     needs:
-      - windows-powershell-tests
-      - macos-bash-tests
-      - linux-bash-tests
+      - windows-integration-tests
+      - macos-integration-tests
+      - linux-integration-tests
       - documentation-validation
     if: always()
     steps:
@@ -278,15 +391,15 @@ jobs:
         run: |
           echo "Platform Tests Summary:"
           echo "======================"
-          echo "Windows PowerShell: ${{ needs.windows-powershell-tests.result }}"
-          echo "macOS Bash:         ${{ needs.macos-bash-tests.result }}"
-          echo "Linux Bash:         ${{ needs.linux-bash-tests.result }}"
-          echo "Documentation:      ${{ needs.documentation-validation.result }}"
+          echo "Windows Integration: ${{ needs.windows-integration-tests.result }}"
+          echo "macOS Integration:   ${{ needs.macos-integration-tests.result }}"
+          echo "Linux Integration:   ${{ needs.linux-integration-tests.result }}"
+          echo "Documentation:       ${{ needs.documentation-validation.result }}"
           echo ""
 
-          if [ "${{ needs.windows-powershell-tests.result }}" = "success" ] && \
-             [ "${{ needs.macos-bash-tests.result }}" = "success" ] && \
-             [ "${{ needs.linux-bash-tests.result }}" = "success" ] && \
+          if [ "${{ needs.windows-integration-tests.result }}" = "success" ] && \
+             [ "${{ needs.macos-integration-tests.result }}" = "success" ] && \
+             [ "${{ needs.linux-integration-tests.result }}" = "success" ] && \
              [ "${{ needs.documentation-validation.result }}" = "success" ]; then
             echo "✅ All platform tests passed!"
             exit 0
