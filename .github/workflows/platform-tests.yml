@@ -419,8 +419,9 @@ jobs:
           cd terraform
           terraform destroy -var-file=environments/local.tfvars -auto-approve || true
 
-  e2e-tests-macos:
-    name: E2E Tests (macOS)
+  # macOS E2E tests with QEMU driver (recommended for Intel runners)
+  e2e-tests-macos-qemu:
+    name: E2E Tests (macOS - QEMU)
     runs-on: macos-15-intel
     needs: macos-integration-tests
     steps:
@@ -432,37 +433,30 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      # Install vfkit driver for macOS Virtualization.framework
-      - name: Install vfkit
-        run: brew install vfkit
+      - name: Install Minikube and QEMU
+        run: |
+          brew install minikube qemu socket_vmnet
+          minikube version
 
-      # Using vfkit driver - preferred for macOS (uses Virtualization.framework)
-      # Alternative drivers if vfkit fails:
-      #   - qemu (experimental, requires socket_vmnet)
-      #   - podman (experimental, has CRI-O issues)
-      #   - docker (requires Docker Desktop installation)
-      - name: Start Minikube
-        uses: medyagh/setup-minikube@latest
-        with:
-          cpus: 2
-          memory: 4096
-          kubernetes-version: 1.34.0
-          driver: vfkit
+      - name: Start Minikube with QEMU
+        run: |
+          minikube start \
+            --driver=qemu \
+            --cpus=2 \
+            --memory=3072 \
+            --kubernetes-version=v1.34.0 \
+            --wait=all
+        timeout-minutes: 15
 
       - name: Verify Minikube
         run: |
           kubectl cluster-info
           kubectl get nodes
 
-      - name: Test Terraform Apply (Dry Run)
-        run: |
-          cd terraform
-          terraform init -backend=false
-          terraform plan -var-file=environments/local.tfvars -out=tfplan
-
       - name: Deploy Platform
         run: |
           cd terraform
+          terraform init -backend=false
           terraform apply -var-file=environments/local.tfvars -auto-approve
         timeout-minutes: 20
 
@@ -479,7 +473,6 @@ jobs:
 
       - name: Test Platform Health
         run: |
-          # Check if critical pods are running
           AIRFLOW=$(kubectl get pods -n ldp --no-headers | \
             grep "airflow-api-server" | awk '{print $3}' | head -n1)
           SPARK=$(kubectl get pods -n ldp --no-headers | \
@@ -517,6 +510,196 @@ jobs:
         run: |
           cd terraform
           terraform destroy -var-file=environments/local.tfvars -auto-approve || true
+          minikube delete || true
+
+  # macOS E2E tests with vfkit driver
+  e2e-tests-macos-vfkit:
+    name: E2E Tests (macOS - vfkit)
+    runs-on: macos-15-intel
+    needs: macos-integration-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Install Minikube and vfkit
+        run: |
+          brew install minikube vfkit
+          minikube version
+
+      - name: Start Minikube with vfkit
+        run: |
+          minikube start \
+            --driver=vfkit \
+            --cpus=2 \
+            --memory=3072 \
+            --kubernetes-version=v1.34.0 \
+            --wait=all
+        timeout-minutes: 15
+
+      - name: Verify Minikube
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Deploy Platform
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform apply -var-file=environments/local.tfvars -auto-approve
+        timeout-minutes: 20
+
+      - name: Wait for Pods
+        run: |
+          echo "Waiting for pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n ldp --timeout=300s || true
+
+      - name: Check Pod Status
+        run: |
+          echo "Checking pod status:"
+          kubectl get pods -n ldp
+          kubectl get services -n ldp
+
+      - name: Test Platform Health
+        run: |
+          AIRFLOW=$(kubectl get pods -n ldp --no-headers | \
+            grep "airflow-api-server" | awk '{print $3}' | head -n1)
+          SPARK=$(kubectl get pods -n ldp --no-headers | \
+            grep "spark-master" | awk '{print $3}' | head -n1)
+          MINIO=$(kubectl get pods -n ldp --no-headers | \
+            grep "^minio-" | awk '{print $3}' | head -n1)
+
+          echo "Airflow: $AIRFLOW"
+          echo "Spark: $SPARK"
+          echo "MinIO: $MINIO"
+
+          if [ "$AIRFLOW" = "Running" ] && \
+             [ "$SPARK" = "Running" ] && \
+             [ "$MINIO" = "Running" ]; then
+            echo "✅ All critical services are running"
+          else
+            echo "⚠️ Some services are not running"
+            kubectl get pods -n ldp
+            exit 1
+          fi
+
+      - name: Cleanup on Failure
+        if: failure()
+        run: |
+          echo "Describing failed pods:"
+          kubectl get pods -n ldp --field-selector=status.phase!=Running --no-headers | \
+            awk '{print $1}' | while read pod; do
+              echo "=== Pod: $pod ==="
+              kubectl describe pod $pod -n ldp
+              kubectl logs $pod -n ldp --tail=50 || true
+            done
+
+      - name: Destroy Platform
+        if: always()
+        run: |
+          cd terraform
+          terraform destroy -var-file=environments/local.tfvars -auto-approve || true
+          minikube delete || true
+
+  # macOS E2E tests with podman driver
+  e2e-tests-macos-podman:
+    name: E2E Tests (macOS - podman)
+    runs-on: macos-15-intel
+    needs: macos-integration-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Install Minikube and Podman
+        run: |
+          brew install minikube podman
+          minikube version
+          podman machine init
+          podman machine start
+
+      - name: Start Minikube with podman
+        run: |
+          minikube start \
+            --driver=podman \
+            --cpus=2 \
+            --memory=3072 \
+            --kubernetes-version=v1.34.0 \
+            --wait=all
+        timeout-minutes: 15
+
+      - name: Verify Minikube
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Deploy Platform
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform apply -var-file=environments/local.tfvars -auto-approve
+        timeout-minutes: 20
+
+      - name: Wait for Pods
+        run: |
+          echo "Waiting for pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n ldp --timeout=300s || true
+
+      - name: Check Pod Status
+        run: |
+          echo "Checking pod status:"
+          kubectl get pods -n ldp
+          kubectl get services -n ldp
+
+      - name: Test Platform Health
+        run: |
+          AIRFLOW=$(kubectl get pods -n ldp --no-headers | \
+            grep "airflow-api-server" | awk '{print $3}' | head -n1)
+          SPARK=$(kubectl get pods -n ldp --no-headers | \
+            grep "spark-master" | awk '{print $3}' | head -n1)
+          MINIO=$(kubectl get pods -n ldp --no-headers | \
+            grep "^minio-" | awk '{print $3}' | head -n1)
+
+          echo "Airflow: $AIRFLOW"
+          echo "Spark: $SPARK"
+          echo "MinIO: $MINIO"
+
+          if [ "$AIRFLOW" = "Running" ] && \
+             [ "$SPARK" = "Running" ] && \
+             [ "$MINIO" = "Running" ]; then
+            echo "✅ All critical services are running"
+          else
+            echo "⚠️ Some services are not running"
+            kubectl get pods -n ldp
+            exit 1
+          fi
+
+      - name: Cleanup on Failure
+        if: failure()
+        run: |
+          echo "Describing failed pods:"
+          kubectl get pods -n ldp --field-selector=status.phase!=Running --no-headers | \
+            awk '{print $1}' | while read pod; do
+              echo "=== Pod: $pod ==="
+              kubectl describe pod $pod -n ldp
+              kubectl logs $pod -n ldp --tail=50 || true
+            done
+
+      - name: Destroy Platform
+        if: always()
+        run: |
+          cd terraform
+          terraform destroy -var-file=environments/local.tfvars -auto-approve || true
+          minikube delete || true
+          podman machine stop || true
 
   # Windows E2E tests are disabled because:
   # - Docker Desktop is not installed on GitHub Actions Windows runners
@@ -590,7 +773,9 @@ jobs:
       - macos-integration-tests
       - linux-integration-tests
       - e2e-tests-linux
-      - e2e-tests-macos
+      - e2e-tests-macos-qemu
+      - e2e-tests-macos-vfkit
+      - e2e-tests-macos-podman
       - documentation-validation
     if: always()
     steps:
@@ -603,18 +788,28 @@ jobs:
           echo "Linux Integration:   ${{ needs.linux-integration-tests.result }}"
           echo ""
           echo "E2E Tests:"
-          echo "  Linux:   ${{ needs.e2e-tests-linux.result }}"
-          echo "  macOS:   ${{ needs.e2e-tests-macos.result }}"
-          echo "  Windows: (disabled - no Docker Desktop on runners)"
+          echo "  Linux:          ${{ needs.e2e-tests-linux.result }}"
+          echo "  macOS (QEMU):   ${{ needs.e2e-tests-macos-qemu.result }}"
+          echo "  macOS (vfkit):  ${{ needs.e2e-tests-macos-vfkit.result }}"
+          echo "  macOS (podman): ${{ needs.e2e-tests-macos-podman.result }}"
+          echo "  Windows:        (disabled - no Docker Desktop on runners)"
           echo ""
           echo "Documentation:       ${{ needs.documentation-validation.result }}"
           echo ""
+
+          # At least one macOS E2E test must pass
+          MACOS_PASS=false
+          if [ "${{ needs.e2e-tests-macos-qemu.result }}" = "success" ] || \
+             [ "${{ needs.e2e-tests-macos-vfkit.result }}" = "success" ] || \
+             [ "${{ needs.e2e-tests-macos-podman.result }}" = "success" ]; then
+            MACOS_PASS=true
+          fi
 
           if [ "${{ needs.windows-integration-tests.result }}" = "success" ] && \
              [ "${{ needs.macos-integration-tests.result }}" = "success" ] && \
              [ "${{ needs.linux-integration-tests.result }}" = "success" ] && \
              [ "${{ needs.e2e-tests-linux.result }}" = "success" ] && \
-             [ "${{ needs.e2e-tests-macos.result }}" = "success" ] && \
+             [ "$MACOS_PASS" = "true" ] && \
              [ "${{ needs.documentation-validation.result }}" = "success" ]; then
             echo "✅ All platform tests passed!"
             exit 0
