@@ -1,6 +1,11 @@
 # Local Data Platform (LDP)
 
+[![CI Testing](https://github.com/gridatek/ldp/actions/workflows/ci.yml/badge.svg)](https://github.com/gridatek/ldp/actions/workflows/ci.yml)
+[![Platform Tests](https://github.com/gridatek/ldp/actions/workflows/platform-tests.yml/badge.svg)](https://github.com/gridatek/ldp/actions/workflows/platform-tests.yml)
+
 A complete local data engineering platform running on Minikube with Apache Airflow, Apache Spark, MinIO, PostgreSQL, and Apache Iceberg.
+
+**Supported Platforms**: Linux | macOS | Windows
 
 ## What is LDP?
 
@@ -141,6 +146,15 @@ ldp/
 ├── tests/              # Integration and E2E tests
 └── examples/           # Example code
 ```
+
+## Testing
+
+LDP is tested across multiple platforms using GitHub Actions:
+- **Windows** - PowerShell scripts, Terraform, Python
+- **macOS** - Bash scripts, Terraform, Python
+- **Linux** - Full E2E tests with Minikube
+
+See [CI/CD Testing Documentation](docs/ci-testing.md) for details.
 
 ## Common Operations
 
