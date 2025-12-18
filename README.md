@@ -213,11 +213,12 @@ Want to see working examples first? Load the example code:
 make load-examples
 ```
 
-This copies example DAGs, Spark jobs, and libraries into your project directories. Great for:
+This copies example DAGs, Spark jobs, libraries, and tests into your project directories. Great for:
 - Learning how to structure your code
 - Understanding integration patterns
 - Quick demos and testing
 - Starting point for customization
+- Running and exploring the test suite
 
 ### Option 2: Start from Scratch
 
