@@ -525,6 +525,20 @@ jobs:
         with:
           terraform_version: 1.6.0
 
+      # 🔑 REQUIRED: Switch Docker to Linux containers
+      - name: Switch Docker to Linux containers
+        shell: powershell
+        run: |
+          & "$Env:ProgramFiles\Docker\Docker\DockerCli.exe" -SwitchLinuxEngine
+          
+          Write-Host "Waiting for Docker to be ready..."
+          while (-not (docker info 2>$null)) {
+          Start-Sleep -Seconds 5
+          }
+          
+          docker info | Select-String "OSType"
+
+
       - name: Start Minikube
         uses: medyagh/setup-minikube@latest
         with:
