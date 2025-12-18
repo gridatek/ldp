@@ -1,5 +1,5 @@
 # Spark Master StatefulSet
-resource "kubernetes_stateful_set" "spark_master" {
+resource "kubernetes_stateful_set_v1" "spark_master" {
   metadata {
     name      = "spark-master"
     namespace = var.namespace
@@ -65,7 +65,7 @@ resource "kubernetes_stateful_set" "spark_master" {
 }
 
 # Spark Master Service (NodePort for external access)
-resource "kubernetes_service" "spark_master" {
+resource "kubernetes_service_v1" "spark_master" {
   metadata {
     name      = "spark-master"
     namespace = var.namespace
@@ -96,7 +96,7 @@ resource "kubernetes_service" "spark_master" {
 }
 
 # Spark Master Headless Service
-resource "kubernetes_service" "spark_master_headless" {
+resource "kubernetes_service_v1" "spark_master_headless" {
   metadata {
     name      = "spark-master-headless"
     namespace = var.namespace
@@ -125,7 +125,7 @@ resource "kubernetes_service" "spark_master_headless" {
 }
 
 # Spark Worker Deployment
-resource "kubernetes_deployment" "spark_worker" {
+resource "kubernetes_deployment_v1" "spark_worker" {
   metadata {
     name      = "spark-worker"
     namespace = var.namespace

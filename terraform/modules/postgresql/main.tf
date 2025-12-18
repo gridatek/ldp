@@ -1,4 +1,4 @@
-resource "kubernetes_stateful_set" "postgresql" {
+resource "kubernetes_stateful_set_v1" "postgresql" {
   metadata {
     name      = "postgresql"
     namespace = var.namespace
@@ -86,7 +86,7 @@ resource "kubernetes_stateful_set" "postgresql" {
   }
 }
 
-resource "kubernetes_service" "postgresql" {
+resource "kubernetes_service_v1" "postgresql" {
   metadata {
     name      = "postgresql"
     namespace = var.namespace
@@ -107,7 +107,7 @@ resource "kubernetes_service" "postgresql" {
   }
 }
 
-resource "kubernetes_service" "postgresql_headless" {
+resource "kubernetes_service_v1" "postgresql_headless" {
   metadata {
     name      = "postgresql-headless"
     namespace = var.namespace

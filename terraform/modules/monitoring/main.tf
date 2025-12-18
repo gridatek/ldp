@@ -1,5 +1,5 @@
 # Prometheus deployment for metrics collection
-resource "kubernetes_deployment" "prometheus" {
+resource "kubernetes_deployment_v1" "prometheus" {
   metadata {
     name      = "prometheus"
     namespace = var.namespace
@@ -100,7 +100,7 @@ resource "kubernetes_deployment" "prometheus" {
   }
 }
 
-resource "kubernetes_service" "prometheus" {
+resource "kubernetes_service_v1" "prometheus" {
   metadata {
     name      = "prometheus"
     namespace = var.namespace
@@ -125,7 +125,7 @@ resource "kubernetes_service" "prometheus" {
   }
 }
 
-resource "kubernetes_config_map" "prometheus_config" {
+resource "kubernetes_config_map_v1" "prometheus_config" {
   metadata {
     name      = "prometheus-config"
     namespace = var.namespace
@@ -193,7 +193,7 @@ resource "kubernetes_config_map" "prometheus_config" {
 }
 
 # Grafana deployment for visualization
-resource "kubernetes_deployment" "grafana" {
+resource "kubernetes_deployment_v1" "grafana" {
   metadata {
     name      = "grafana"
     namespace = var.namespace
@@ -320,7 +320,7 @@ resource "kubernetes_deployment" "grafana" {
   }
 }
 
-resource "kubernetes_service" "grafana" {
+resource "kubernetes_service_v1" "grafana" {
   metadata {
     name      = "grafana"
     namespace = var.namespace
@@ -345,7 +345,7 @@ resource "kubernetes_service" "grafana" {
   }
 }
 
-resource "kubernetes_secret" "grafana_secrets" {
+resource "kubernetes_secret_v1" "grafana_secrets" {
   metadata {
     name      = "grafana-secrets"
     namespace = var.namespace
@@ -358,7 +358,7 @@ resource "kubernetes_secret" "grafana_secrets" {
   type = "Opaque"
 }
 
-resource "kubernetes_config_map" "grafana_datasources" {
+resource "kubernetes_config_map_v1" "grafana_datasources" {
   metadata {
     name      = "grafana-datasources"
     namespace = var.namespace
@@ -378,7 +378,7 @@ resource "kubernetes_config_map" "grafana_datasources" {
   }
 }
 
-resource "kubernetes_config_map" "grafana_dashboards_config" {
+resource "kubernetes_config_map_v1" "grafana_dashboards_config" {
   metadata {
     name      = "grafana-dashboards-config"
     namespace = var.namespace
@@ -400,7 +400,7 @@ resource "kubernetes_config_map" "grafana_dashboards_config" {
   }
 }
 
-resource "kubernetes_config_map" "grafana_dashboards" {
+resource "kubernetes_config_map_v1" "grafana_dashboards" {
   metadata {
     name      = "grafana-dashboards"
     namespace = var.namespace
