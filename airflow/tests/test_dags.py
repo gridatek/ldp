@@ -1,6 +1,7 @@
 """
 Tests for Airflow DAGs.
 """
+import os
 import pytest
 from airflow.models import DagBag
 
@@ -10,7 +11,8 @@ class TestDAGs:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.dagbag = DagBag(dag_folder='dags/', include_examples=False)
+        dag_folder = os.path.join(os.path.dirname(__file__), '../dags')
+        self.dagbag = DagBag(dag_folder=dag_folder, include_examples=False)
 
     def test_no_import_errors(self):
         """Test that all DAGs can be imported without errors."""

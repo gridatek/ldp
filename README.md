@@ -1,6 +1,11 @@
 # Local Data Platform (LDP)
 
+[![CI Testing](https://github.com/gridatek/ldp/actions/workflows/ci.yml/badge.svg)](https://github.com/gridatek/ldp/actions/workflows/ci.yml)
+[![Platform Tests](https://github.com/gridatek/ldp/actions/workflows/platform-tests.yml/badge.svg)](https://github.com/gridatek/ldp/actions/workflows/platform-tests.yml)
+
 A complete local data engineering platform running on Minikube with Apache Airflow, Apache Spark, MinIO, PostgreSQL, and Apache Iceberg.
+
+**Supported Platforms**: Linux | macOS | Windows
 
 ## What is LDP?
 
@@ -25,19 +30,19 @@ LDP gives you a realistic local environment to develop and test before deploying
 
 ### Perfect For
 
-✅ **Data Engineering Students** - Learn industry-standard tools without AWS/GCP bills
-✅ **Pipeline Development** - Build and debug Airflow DAGs locally before cloud deployment
-✅ **Testing & CI/CD** - Run integration tests for data pipelines in GitHub Actions
-✅ **Proof of Concepts** - Validate data architecture decisions quickly
-✅ **Tool Evaluation** - Try Iceberg, Spark, or Airflow features risk-free
+- ✅ **Data Engineering Students** - Learn industry-standard tools without AWS/GCP bills
+- ✅ **Pipeline Development** - Build and debug Airflow DAGs locally before cloud deployment
+- ✅ **Testing & CI/CD** - Run integration tests for data pipelines in GitHub Actions
+- ✅ **Proof of Concepts** - Validate data architecture decisions quickly
+- ✅ **Tool Evaluation** - Try Iceberg, Spark, or Airflow features risk-free
 
 ### Not Suitable For
 
-❌ Production data workloads (use cloud services instead)
-❌ Large-scale data processing (limited by laptop resources)
-❌ Multi-user production environments
-❌ Long-running production jobs
-❌ Enterprise SLA requirements
+- ❌ Production data workloads (use cloud services instead)
+- ❌ Large-scale data processing (limited by laptop resources)
+- ❌ Multi-user production environments
+- ❌ Long-running production jobs
+- ❌ Enterprise SLA requirements
 
 ## Features
 
@@ -50,6 +55,12 @@ LDP gives you a realistic local environment to develop and test before deploying
 
 ## Quick Start
 
+LDP works on **macOS**, **Windows**, and **Linux**. Choose your platform:
+
+- **[macOS](docs/platform-guides/macos.md)** - Use Homebrew and native tools
+- **[Windows](docs/platform-guides/windows.md)** - Use PowerShell scripts and Chocolatey/winget
+- **[Linux](docs/setup-guide.md#linux-setup)** - Standard package managers
+
 ### Prerequisites
 
 Install the required tools:
@@ -60,6 +71,7 @@ Install the required tools:
 
 ### Setup and Deploy
 
+**Linux/macOS:**
 ```bash
 # 1. Initial setup (starts Minikube)
 make setup
@@ -69,6 +81,18 @@ make start
 
 # 3. Check service health
 make health
+```
+
+**Windows PowerShell:**
+```powershell
+# 1. Initial setup
+.\scripts\windows\setup.ps1
+
+# 2. Deploy the platform
+.\scripts\windows\start.ps1
+
+# 3. Check service health
+.\scripts\windows\check-health.ps1
 ```
 
 ### Access Services
@@ -122,6 +146,15 @@ ldp/
 ├── tests/              # Integration and E2E tests
 └── examples/           # Example code
 ```
+
+## Testing
+
+LDP is tested across multiple platforms using GitHub Actions:
+- **Windows** - PowerShell scripts, Terraform, Python
+- **macOS** - Bash scripts, Terraform, Python
+- **Linux** - Full E2E tests with Minikube
+
+See [CI/CD Testing Documentation](docs/ci-testing.md) for details.
 
 ## Common Operations
 
