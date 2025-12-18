@@ -87,7 +87,7 @@ resource "kubernetes_deployment_v1" "prometheus" {
         volume {
           name = "prometheus-config"
           config_map {
-            name = kubernetes_config_map.prometheus_config.metadata[0].name
+            name = kubernetes_config_map_v1.prometheus_config.metadata[0].name
           }
         }
 
@@ -239,7 +239,7 @@ resource "kubernetes_deployment_v1" "grafana" {
             name = "GF_SECURITY_ADMIN_PASSWORD"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.grafana_secrets.metadata[0].name
+                name = kubernetes_secret_v1.grafana_secrets.metadata[0].name
                 key  = "admin-password"
               }
             }
@@ -298,21 +298,21 @@ resource "kubernetes_deployment_v1" "grafana" {
         volume {
           name = "grafana-datasources"
           config_map {
-            name = kubernetes_config_map.grafana_datasources.metadata[0].name
+            name = kubernetes_config_map_v1.grafana_datasources.metadata[0].name
           }
         }
 
         volume {
           name = "grafana-dashboards-config"
           config_map {
-            name = kubernetes_config_map.grafana_dashboards_config.metadata[0].name
+            name = kubernetes_config_map_v1.grafana_dashboards_config.metadata[0].name
           }
         }
 
         volume {
           name = "grafana-dashboards"
           config_map {
-            name = kubernetes_config_map.grafana_dashboards.metadata[0].name
+            name = kubernetes_config_map_v1.grafana_dashboards.metadata[0].name
           }
         }
       }
