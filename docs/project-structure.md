@@ -224,7 +224,6 @@ Sample code demonstrating platform capabilities.
 - **README.md**: Quick start and overview
 - **.env.example**: Template for environment variables
 - **requirements.txt**: Python dependencies
-- **docker-compose.yml**: Alternative local setup (optional)
 
 ## Usage Patterns
 
