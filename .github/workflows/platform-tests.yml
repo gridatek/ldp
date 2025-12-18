@@ -381,19 +381,25 @@ jobs:
       - name: Test Platform Health
         run: |
           # Check if critical pods are running
-          AIRFLOW=$(kubectl get pods -n ldp -l component=webserver -o jsonpath='{.items[0].status.phase}')
-          SPARK=$(kubectl get pods -n ldp -l component=master -o jsonpath='{.items[0].status.phase}')
-          MINIO=$(kubectl get pods -n ldp -l app=minio -o jsonpath='{.items[0].status.phase}')
+          AIRFLOW=$(kubectl get pods -n ldp --no-headers | \
+            grep "airflow-api-server" | awk '{print $3}' | head -n1)
+          SPARK=$(kubectl get pods -n ldp --no-headers | \
+            grep "spark-master" | awk '{print $3}' | head -n1)
+          MINIO=$(kubectl get pods -n ldp --no-headers | \
+            grep "^minio-" | awk '{print $3}' | head -n1)
 
           echo "Airflow: $AIRFLOW"
           echo "Spark: $SPARK"
           echo "MinIO: $MINIO"
 
-          if [ "$AIRFLOW" = "Running" ] && [ "$SPARK" = "Running" ] && [ "$MINIO" = "Running" ]; then
+          if [ "$AIRFLOW" = "Running" ] && \
+             [ "$SPARK" = "Running" ] && \
+             [ "$MINIO" = "Running" ]; then
             echo "✅ All critical services are running"
           else
             echo "⚠️ Some services are not running"
             kubectl get pods -n ldp
+            exit 1
           fi
 
       - name: Cleanup on Failure
