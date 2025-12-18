@@ -450,10 +450,11 @@ jobs:
           minikube start \
             --driver=qemu \
             --cpus=2 \
-            --memory=3072 \
+            --memory=2048 \
             --kubernetes-version=v1.34.0 \
-            --wait=all
-        timeout-minutes: 15
+            --wait=all \
+            --wait-timeout=15m
+        timeout-minutes: 25
 
       - name: Verify Minikube
         run: |
@@ -543,10 +544,11 @@ jobs:
           minikube start \
             --driver=vfkit \
             --cpus=2 \
-            --memory=3072 \
+            --memory=2048 \
             --kubernetes-version=v1.34.0 \
-            --wait=all
-        timeout-minutes: 15
+            --wait=all \
+            --wait-timeout=15m
+        timeout-minutes: 25
 
       - name: Verify Minikube
         run: |
@@ -638,10 +640,11 @@ jobs:
           minikube start \
             --driver=podman \
             --cpus=2 \
-            --memory=3072 \
+            --memory=1800 \
             --kubernetes-version=v1.34.0 \
-            --wait=all
-        timeout-minutes: 15
+            --wait=all \
+            --wait-timeout=15m
+        timeout-minutes: 25
 
       - name: Verify Minikube
         run: |
