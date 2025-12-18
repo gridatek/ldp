@@ -35,7 +35,7 @@ with DAG(
         application='/opt/spark/jobs/batch_processing.py',
         conn_id='spark_default',
         conf={
-            'spark.jars.packages': 'org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.4.3,'
+            'spark.jars.packages': 'org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.10.0,'
                                   'org.apache.hadoop:hadoop-aws:3.3.4',
             'spark.sql.catalog.local': 'org.apache.iceberg.spark.SparkCatalog',
             'spark.sql.catalog.local.type': 'hadoop',

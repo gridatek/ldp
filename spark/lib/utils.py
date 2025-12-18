@@ -20,7 +20,7 @@ def get_iceberg_spark_session(app_name: str, configs: Dict[str, Any] = None) -> 
 
     # Default Iceberg configurations
     default_configs = {
-        "spark.jars.packages": "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.4.3",
+        "spark.jars.packages": "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.10.0",
         "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
         "spark.sql.catalog.local": "org.apache.iceberg.spark.SparkCatalog",
         "spark.sql.catalog.local.type": "hadoop",

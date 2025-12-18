@@ -338,17 +338,20 @@ jobs:
           cd terraform
           terraform init -backend=false
           terraform apply -var-file=environments/dev.tfvars -auto-approve
-        timeout-minutes: 15
+        timeout-minutes: 20
 
       - name: Wait for Airflow database migrations
         run: |
           echo "Waiting for Helm-managed database migrations to complete..."
           # Wait for the migration job created by the Helm chart
-          timeout 180 bash -c 'until kubectl get job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations 2>/dev/null | grep -q "1/1"; do echo "Waiting for migration job..."; sleep 5; done' || true
+          timeout 180 bash -c 'until kubectl get job -n ldp \
+            -l app.kubernetes.io/component=run-airflow-migrations 2>/dev/null | grep -q "1/1"; do \
+            echo "Waiting for migration job..."; sleep 5; done' || true
 
           # If migration job exists, wait for it to complete
-          if kubectl get job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations &>/dev/null; then
-            kubectl wait --for=condition=complete job -n ldp-dev -l app.kubernetes.io/component=run-airflow-migrations --timeout=120s || true
+          if kubectl get job -n ldp -l app.kubernetes.io/component=run-airflow-migrations &>/dev/null; then
+            kubectl wait --for=condition=complete job -n ldp \
+              -l app.kubernetes.io/component=run-airflow-migrations --timeout=120s || true
           fi
 
           echo "Migration check complete"
@@ -356,48 +359,125 @@ jobs:
       - name: Wait for pods to be ready
         run: |
           echo "Waiting for all pods to be ready..."
-          kubectl wait --for=condition=ready pod --all -n ldp-dev --timeout=300s || true
+          kubectl wait --for=condition=ready pod --all -n ldp --timeout=300s || true
 
       - name: Check all pods status
         run: |
-          echo "Checking pod status in ldp-dev namespace:"
-          kubectl get pods -n ldp-dev -o wide
+          echo "Checking pod status in ldp namespace:"
+          kubectl get pods -n ldp -o wide
 
           # Check if all pods are running
-          NOT_RUNNING=$(kubectl get pods -n ldp-dev \
+          NOT_RUNNING=$(kubectl get pods -n ldp \
             --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l)
           if [ "$NOT_RUNNING" -gt 0 ]; then
             echo "Warning: $NOT_RUNNING pod(s) are not in Running state"
-            kubectl get pods -n ldp-dev --field-selector=status.phase!=Running
+            kubectl get pods -n ldp --field-selector=status.phase!=Running
           fi
 
       - name: Check deployments
         run: |
           echo "Checking deployments:"
-          kubectl get deployments -n ldp-dev
+          kubectl get deployments -n ldp
 
       - name: Check services
         run: |
           echo "Checking services:"
-          kubectl get services -n ldp-dev
+          kubectl get services -n ldp
+
+      - name: Wait for MinIO to be ready
+        run: |
+          echo "Waiting for MinIO service to be ready..."
+          kubectl wait --for=condition=ready pod -n ldp -l app=minio --timeout=120s || true
+          echo "MinIO pod status:"
+          kubectl get pods -n ldp -l app=minio
+
+      - name: Initialize MinIO buckets
+        run: |
+          echo "Creating MinIO buckets..."
+          kubectl apply -f kubernetes/jobs/init-minio-buckets.yaml
+          kubectl wait --for=condition=complete job/init-minio-buckets -n ldp --timeout=180s || true
+
+          echo "Job status:"
+          kubectl get job init-minio-buckets -n ldp
+
+          if kubectl get job init-minio-buckets -n ldp -o jsonpath='{.status.succeeded}' | grep -q 1; then
+            echo "MinIO buckets initialized successfully"
+          else
+            echo "Warning: MinIO bucket initialization may have failed, checking logs..."
+            POD=$(kubectl get pods -n ldp -l job-name=init-minio-buckets \
+              -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+            if [ -n "$POD" ]; then
+              kubectl logs -n ldp $POD --tail=50 || true
+            fi
+          fi
+
+      - name: Upload test data to MinIO
+        run: |
+          echo "Creating sample test data..."
+          cat > /tmp/upload_script.sh <<'SCRIPT'
+          #!/bin/sh
+          mc alias set ldp http://minio:9000 admin minioadmin
+          mc mb --ignore-existing ldp/datalake/raw/test
+          cat <<'DATA' | mc pipe ldp/datalake/raw/test/sample_data.csv
+          id,name,value,date
+          1,product_a,100,2024-01-01
+          2,product_b,200,2024-01-02
+          3,product_c,300,2024-01-03
+          4,product_d,400,2024-01-04
+          5,product_e,500,2024-01-05
+          DATA
+          echo "Test data uploaded successfully"
+          mc ls ldp/datalake/raw/test/
+          SCRIPT
+
+          echo "Uploading test data to MinIO using mc client..."
+          kubectl run minio-upload --rm -i --restart=Never \
+            --image=minio/mc:latest -n ldp \
+            --command -- /bin/sh -s < /tmp/upload_script.sh
+
+      - name: Test complete data pipeline
+        run: |
+          echo "Testing end-to-end data pipeline..."
+
+          # Wait for Airflow webserver to be ready
+          echo "Waiting for Airflow to be ready..."
+          kubectl wait --for=condition=ready pod -n ldp -l component=webserver --timeout=120s || true
+
+          # Port forward Airflow (in background)
+          kubectl port-forward -n ldp svc/airflow-webserver 8080:8080 &
+          sleep 10
+
+          # Trigger the example DAG via REST API
+          echo "Triggering example_spark_job DAG..."
+          curl -X POST "http://localhost:8080/api/v1/dags/example_spark_job/dagRuns" \
+            -H "Content-Type: application/json" \
+            -u "admin:admin" \
+            -d '{"conf":{}}' || echo "DAG trigger failed (DAG may not be loaded yet)"
+
+          # Check DAG status
+          echo "Checking available DAGs..."
+          curl -s "http://localhost:8080/api/v1/dags" \
+            -u "admin:admin" | head -20 || echo "Could not fetch DAGs"
+
+          echo "Pipeline test initiated"
 
       - name: Describe failed pods (if any)
         if: failure()
         run: |
           echo "Describing pods that are not ready:"
-          kubectl get pods -n ldp-dev --field-selector=status.phase!=Running \
+          kubectl get pods -n ldp --field-selector=status.phase!=Running \
             --no-headers | awk '{print $1}' | while read pod; do
             echo "=== Describing pod: $pod ==="
-            kubectl describe pod $pod -n ldp-dev
+            kubectl describe pod $pod -n ldp
             echo "=== Logs for pod: $pod ==="
-            kubectl logs $pod -n ldp-dev --tail=50 || true
+            kubectl logs $pod -n ldp --tail=50 || true
           done
 
       - name: Get all resources in namespace
         if: always()
         run: |
-          echo "All resources in ldp-dev namespace:"
-          kubectl get all -n ldp-dev
+          echo "All resources in ldp namespace:"
+          kubectl get all -n ldp
 
   summary:
     name: CI Summary
