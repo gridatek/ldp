@@ -132,7 +132,7 @@ ldp/
 │   │   └── hive-site.xml
 │   └── env/
 │       ├── .env.example
-│       └── dev.env
+│       └── local.env
 │
 ├── docs/                         # Documentation
 │   ├── setup.md
