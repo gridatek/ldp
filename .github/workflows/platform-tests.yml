@@ -76,7 +76,6 @@ jobs:
         run: |
           flake8 airflow/ spark/ tests/ examples/ `
             --count --select=E9,F63,F7,F82 --show-source --statistics
-        continue-on-error: true
 
       - name: Test prerequisite checking
         run: |
@@ -199,14 +198,13 @@ jobs:
       - name: Python syntax check
         run: |
           echo "Checking Python syntax..."
-          python -m py_compile airflow/dags/**/*.py || true
-          python -m py_compile spark/jobs/*.py || true
+          find airflow/dags -name "*.py" -exec python -m py_compile {} \;
+          find spark/jobs -name "*.py" -exec python -m py_compile {} \;
 
       - name: Lint Python code
         run: |
           flake8 airflow/ spark/ tests/ examples/ \
             --count --select=E9,F63,F7,F82 --show-source --statistics
-        continue-on-error: true
 
       - name: Verify script files exist
         run: |
@@ -311,13 +309,20 @@ jobs:
         run: |
           flake8 airflow/ spark/ tests/ examples/ \
             --count --select=E9,F63,F7,F82 --show-source --statistics
-        continue-on-error: true
 
       - name: Run Python unit tests
         run: |
-          pytest airflow/tests/ -v --tb=short || true
-          pytest spark/tests/ -v --tb=short || true
-        continue-on-error: true
+          if [ -d "airflow/tests" ] && [ "$(ls -A airflow/tests/*.py 2>/dev/null)" ]; then
+            pytest airflow/tests/ -v --tb=short
+          else
+            echo "No Airflow tests found, skipping"
+          fi
+
+          if [ -d "spark/tests" ] && [ "$(ls -A spark/tests/*.py 2>/dev/null)" ]; then
+            pytest spark/tests/ -v --tb=short
+          else
+            echo "No Spark tests found, skipping"
+          fi
 
       - name: Make scripts executable
         run: |
