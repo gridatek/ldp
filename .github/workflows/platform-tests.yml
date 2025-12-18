@@ -421,7 +421,7 @@ jobs:
 
   e2e-tests-macos:
     name: E2E Tests (macOS)
-    runs-on: macos-latest
+    runs-on: macos-12
     needs: macos-integration-tests
     steps:
       - name: Checkout code
