@@ -1,19 +1,19 @@
 # Core Spark dependencies
-pyspark==3.5.0
+# Note: PySpark 4.1.0 requires Python >= 3.10
+pyspark==4.1.0
 
 # Data processing
-pandas==2.1.4
-numpy==1.26.3
-pyarrow==14.0.2
+pandas==2.3.3
+numpy==2.3.5
+pyarrow==22.0.0
 
 # S3/MinIO support
 boto3>=1.37.2
 s3fs==2023.12.2
 
 # Iceberg support (Python side)
-# PyIceberg 0.6.1 requires fsspec<2024.1.0,>=2023.1.0
-# s3fs 2023.12.2 uses compatible fsspec version
-pyiceberg[s3fs]==0.6.1
+# PyIceberg 0.10.0 supports Python >= 3.9
+pyiceberg[s3fs]==0.10.0
 
 # Utilities
 pyyaml==6.0.1
