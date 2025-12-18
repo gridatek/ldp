@@ -50,6 +50,12 @@ LDP gives you a realistic local environment to develop and test before deploying
 
 ## Quick Start
 
+LDP works on **macOS**, **Windows**, and **Linux**. Choose your platform:
+
+- **[macOS](docs/platform-guides/macos.md)** - Use Homebrew and native tools
+- **[Windows](docs/platform-guides/windows.md)** - Use PowerShell scripts and Chocolatey/winget
+- **[Linux](docs/setup-guide.md#linux-setup)** - Standard package managers
+
 ### Prerequisites
 
 Install the required tools:
@@ -60,6 +66,7 @@ Install the required tools:
 
 ### Setup and Deploy
 
+**Linux/macOS:**
 ```bash
 # 1. Initial setup (starts Minikube)
 make setup
@@ -69,6 +76,18 @@ make start
 
 # 3. Check service health
 make health
+```
+
+**Windows PowerShell:**
+```powershell
+# 1. Initial setup
+.\scripts\windows\setup.ps1
+
+# 2. Deploy the platform
+.\scripts\windows\start.ps1
+
+# 3. Check service health
+.\scripts\windows\check-health.ps1
 ```
 
 ### Access Services

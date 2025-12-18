@@ -27,7 +27,17 @@ LDP is perfect for:
 
 LDP runs on your laptop or in CI environments. For production data workloads, use cloud-managed services or dedicated Kubernetes clusters with proper scaling, security, and reliability features.
 
-## Prerequisites
+## Platform-Specific Guides
+
+**Choose your operating system for detailed installation instructions:**
+
+- **[macOS Setup Guide](platform-guides/macos.md)** - Complete guide for Mac users (Intel and Apple Silicon)
+- **[Windows Setup Guide](platform-guides/windows.md)** - Complete guide for Windows 10/11 users
+- **[Linux Setup Guide](#prerequisites)** - See below for Linux instructions
+
+## Linux Setup
+
+### Prerequisites
 
 ### Required Software
 ```bash

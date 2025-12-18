@@ -11,6 +11,21 @@ Welcome to the Local Data Platform (LDP) documentation.
   - Service access and verification
   - Iceberg configuration examples
 
+### Platform-Specific Guides
+
+LDP supports macOS, Windows, and Linux:
+
+- **[macOS Setup](platform-guides/macos.md)** - Installation guide for Mac (Intel and Apple Silicon)
+  - Homebrew installation
+  - Docker Desktop setup
+  - macOS-specific troubleshooting
+
+- **[Windows Setup](platform-guides/windows.md)** - Installation guide for Windows 10/11
+  - Chocolatey/winget installation
+  - PowerShell scripts
+  - Hyper-V and Docker Desktop options
+  - Windows-specific troubleshooting
+
 ## Architecture & Design
 
 - **[Project Structure](project-structure.md)** - Complete directory structure and organization
