@@ -275,9 +275,7 @@ Check the `examples/` directory for:
 
 ## Documentation
 
-For detailed documentation, see the `docs/` directory:
-- [Project Structure](docs/project-structure.md)
-- [Setup Guide](docs/setup-guide.md)
+See the **[Documentation Index](docs/)** for detailed guides, architecture documentation, and troubleshooting.
 
 ## Contributing
 
