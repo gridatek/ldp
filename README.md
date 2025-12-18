@@ -30,19 +30,19 @@ LDP gives you a realistic local environment to develop and test before deploying
 
 ### Perfect For
 
-✅ **Data Engineering Students** - Learn industry-standard tools without AWS/GCP bills
-✅ **Pipeline Development** - Build and debug Airflow DAGs locally before cloud deployment
-✅ **Testing & CI/CD** - Run integration tests for data pipelines in GitHub Actions
-✅ **Proof of Concepts** - Validate data architecture decisions quickly
-✅ **Tool Evaluation** - Try Iceberg, Spark, or Airflow features risk-free
+- ✅ **Data Engineering Students** - Learn industry-standard tools without AWS/GCP bills
+- ✅ **Pipeline Development** - Build and debug Airflow DAGs locally before cloud deployment
+- ✅ **Testing & CI/CD** - Run integration tests for data pipelines in GitHub Actions
+- ✅ **Proof of Concepts** - Validate data architecture decisions quickly
+- ✅ **Tool Evaluation** - Try Iceberg, Spark, or Airflow features risk-free
 
 ### Not Suitable For
 
-❌ Production data workloads (use cloud services instead)
-❌ Large-scale data processing (limited by laptop resources)
-❌ Multi-user production environments
-❌ Long-running production jobs
-❌ Enterprise SLA requirements
+- ❌ Production data workloads (use cloud services instead)
+- ❌ Large-scale data processing (limited by laptop resources)
+- ❌ Multi-user production environments
+- ❌ Long-running production jobs
+- ❌ Enterprise SLA requirements
 
 ## Features
 
