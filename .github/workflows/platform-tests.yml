@@ -555,6 +555,10 @@ jobs:
           brew install minikube vfkit
           minikube version
 
+          # Verify vfkit is installed
+          which vfkit
+          echo "✓ vfkit installed successfully"
+
       - name: Start Minikube with vfkit
         run: |
           minikube start \
@@ -648,8 +652,27 @@ jobs:
         run: |
           brew install minikube podman
           minikube version
-          podman machine init
+
+          # Initialize and start podman machine
+          echo "Initializing podman machine..."
+          podman machine init --cpus=2 --memory=2048 --disk-size=20
+
+          echo "Starting podman machine..."
           podman machine start
+
+          # Wait for podman to be ready
+          echo "Waiting for podman to be ready..."
+          sleep 10
+
+          # Verify podman is running
+          if podman machine list | grep -q "Running"; then
+            echo "✓ Podman machine is running"
+            podman info | head -20
+          else
+            echo "✗ Podman machine failed to start"
+            podman machine list
+            exit 1
+          fi
 
       - name: Start Minikube with podman
         run: |
