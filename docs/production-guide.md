@@ -1,6 +1,24 @@
-# Production Deployment Guide
+# Production-Ready Local Deployment Guide
 
-This guide covers deploying the Local Data Platform in production environments with proper security, monitoring, and operational practices.
+> **⚠️ Important**: This guide covers **production-like practices for LOCAL environments**, not actual production cloud deployment. LDP is designed for local development, testing, and CI/CD - not for production data workloads.
+
+This guide helps you configure LDP with production-ready practices (security, monitoring, testing) while still running locally on Minikube or in CI environments.
+
+## When to Use This Guide
+
+Use this guide if you want to:
+- Run LDP with production-like security practices locally
+- Set up comprehensive monitoring for local development
+- Configure proper backup/recovery for your local environment
+- Prepare pipelines for eventual cloud deployment
+
+## For Actual Production
+
+For real production data workloads, use cloud-managed services instead:
+- **AWS**: EMR, Glue, MWAA (Managed Airflow), Redshift
+- **GCP**: Dataproc, Cloud Composer, BigQuery
+- **Azure**: Synapse Analytics, Data Factory, Databricks
+- **Multi-cloud**: Databricks, Snowflake, Confluent
 
 ## Table of Contents
 
