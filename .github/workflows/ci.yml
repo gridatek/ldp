@@ -72,6 +72,10 @@ jobs:
           pip install -r docker/airflow/requirements.txt
           pip install -r docker/spark/requirements.txt
 
+      - name: Load example code and tests
+        run: |
+          make load-examples
+
       - name: Lint with flake8
         run: |
           # Stop the build if there are Python syntax errors or undefined names

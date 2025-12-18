@@ -11,6 +11,13 @@ Welcome to the Local Data Platform (LDP) documentation.
   - Service access and verification
   - Iceberg configuration examples
 
+- **[Writing Code Guide](writing-code.md)** - Where to write your custom code
+  - Directory structure for your code
+  - Airflow DAGs, Spark jobs, and libraries
+  - Examples and best practices
+  - Development workflow
+  - Using the `make load-examples` command
+
 ### Platform-Specific Guides
 
 LDP supports macOS, Windows, and Linux:

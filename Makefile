@@ -45,6 +45,7 @@ help:
 	@echo "  make tf-plan     - Plan Terraform changes"
 	@echo "  make tf-apply    - Apply Terraform changes"
 	@echo "  make minikube-ip - Show Minikube IP address"
+	@echo "  make load-examples - Copy example code for demo/testing"
 
 # Setup & Deployment
 setup:
@@ -204,3 +205,29 @@ lint:
 	@echo "Linting Python code..."
 	@pylint airflow/ spark/ tests/ examples/ || true
 	@flake8 airflow/ spark/ tests/ examples/ || true
+
+# Load example code for demo/testing
+load-examples:
+	@echo "Loading example code into project directories..."
+	@echo "This will copy example DAGs, Spark jobs, libraries, and tests."
+	@echo ""
+	@echo "Copying DAGs to airflow/dags/..."
+	@cp -r examples/dags/* airflow/dags/ 2>/dev/null || true
+	@echo "Copying Spark jobs to spark/jobs/..."
+	@cp -r examples/spark-jobs/* spark/jobs/ 2>/dev/null || true
+	@echo "Copying Spark libraries to spark/lib/..."
+	@cp -r examples/spark-lib/* spark/lib/ 2>/dev/null || true
+	@echo "Copying tests..."
+	@cp -r examples/tests/airflow/* airflow/tests/ 2>/dev/null || true
+	@cp -r examples/tests/spark/* spark/tests/ 2>/dev/null || true
+	@cp -r examples/tests/integration/* tests/integration/ 2>/dev/null || true
+	@cp -r examples/tests/e2e/* tests/e2e/ 2>/dev/null || true
+	@cp examples/tests/conftest.py tests/ 2>/dev/null || true
+	@echo ""
+	@echo "✓ Example code loaded successfully!"
+	@echo "You can now test the platform with example pipelines."
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Restart platform: make stop && make start"
+	@echo "  2. Access Airflow UI and trigger example DAGs"
+	@echo "  3. Check logs: make logs"

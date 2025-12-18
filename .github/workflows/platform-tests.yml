@@ -74,7 +74,7 @@ jobs:
 
       - name: Lint Python code
         run: |
-          flake8 airflow/ spark/ tests/ examples/ `
+          flake8 airflow/ spark/ examples/ `
             --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Test prerequisite checking
@@ -203,7 +203,7 @@ jobs:
 
       - name: Lint Python code
         run: |
-          flake8 airflow/ spark/ tests/ examples/ \
+          flake8 airflow/ spark/ examples/ \
             --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Verify script files exist
@@ -305,9 +305,13 @@ jobs:
           pip install -r docker/airflow/requirements.txt || true
           pip install -r docker/spark/requirements.txt || true
 
+      - name: Load example code and tests
+        run: |
+          make load-examples
+
       - name: Lint Python code
         run: |
-          flake8 airflow/ spark/ tests/ examples/ \
+          flake8 airflow/ spark/ examples/ \
             --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Run Python unit tests
