@@ -438,6 +438,13 @@ jobs:
           brew install minikube qemu socket_vmnet
           minikube version
 
+      - name: Start socket_vmnet service
+        run: |
+          # socket_vmnet provides networking for QEMU driver
+          sudo brew services start socket_vmnet
+          # Wait for service to be ready
+          sleep 5
+
       - name: Start Minikube with QEMU
         run: |
           minikube start \
