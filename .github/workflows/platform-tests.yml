@@ -432,6 +432,10 @@ jobs:
         with:
           terraform_version: 1.6.0
 
+      # Install vfkit driver for macOS Virtualization.framework
+      - name: Install vfkit
+        run: brew install vfkit
+
       # Using vfkit driver - preferred for macOS (uses Virtualization.framework)
       # Alternative drivers if vfkit fails:
       #   - qemu (experimental, requires socket_vmnet)
