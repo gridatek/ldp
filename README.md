@@ -199,38 +199,82 @@ make test-unit
 make test-int
 ```
 
+## Getting Started with Your Code
+
+### Start with a Clean Slate
+
+LDP provides an **empty project structure** - a blank canvas for your data pipelines. The main directories (`airflow/dags/`, `spark/jobs/`, `spark/lib/`) are intentionally empty, giving you complete freedom to build your own solutions.
+
+### Option 1: Load Examples (Recommended for Learning)
+
+Want to see working examples first? Load the example code:
+
+```bash
+make load-examples
+```
+
+This copies example DAGs, Spark jobs, and libraries into your project directories. Great for:
+- Learning how to structure your code
+- Understanding integration patterns
+- Quick demos and testing
+- Starting point for customization
+
+### Option 2: Start from Scratch
+
+Ready to build your own? Just create files in the right places:
+
+```bash
+# Create your first DAG
+vim airflow/dags/my_pipeline.py
+
+# Create your first Spark job
+vim spark/jobs/process_data.py
+```
+
+**Where to write your code:**
+- `airflow/dags/` - Your workflow orchestration (DAGs)
+- `spark/jobs/` - Your data processing logic
+- `spark/lib/` - Reusable utilities and functions
+- `data/raw/` - Your input datasets
+
+📖 **See [Writing Code Guide](docs/writing-code.md) for detailed instructions and best practices**
+
 ## Development Workflow
 
-### 1. Create a DAG
-
-Add your DAG to `airflow/dags/`:
+### 1. Write Your Code
 
 ```python
+# airflow/dags/my_etl.py
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 
-with DAG('my_dag', start_date=datetime(2024, 1, 1)) as dag:
+with DAG('my_etl', start_date=datetime(2024, 1, 1)) as dag:
     task = PythonOperator(
-        task_id='my_task',
-        python_callable=lambda: print("Hello LDP!")
+        task_id='process',
+        python_callable=lambda: print("Processing data!")
     )
 ```
 
-### 2. Create a Spark Job
+### 2. Add Your Data
 
-Add your Spark job to `spark/jobs/`:
-
-```python
-from pyspark.sql import SparkSession
-
-spark = SparkSession.builder.appName("MyJob").getOrCreate()
-# Your Spark code here
+```bash
+cp ~/my_dataset.csv data/raw/
 ```
 
-### 3. Working with Iceberg
+### 3. Deploy and Test
 
-See `examples/iceberg_crud.py` for complete examples.
+```bash
+# Restart to load new code
+make stop && make start
+
+# Access Airflow UI and trigger your DAG
+open http://$(minikube ip):30080
+```
+
+### Working with Iceberg
+
+See `examples/iceberg_crud.py` for complete examples:
 
 ```python
 # Create Iceberg table
@@ -300,11 +344,34 @@ make start
 
 ## Examples
 
-Check the `examples/` directory for:
-- `simple_dag.py` - Basic Airflow DAG
-- `spark_job.py` - Simple Spark job
-- `iceberg_crud.py` - Iceberg operations
-- `minio_operations.py` - MinIO S3 operations
+The `examples/` directory contains reference implementations:
+
+```
+examples/
+├── simple_dag.py           # Basic Airflow DAG
+├── spark_job.py            # Simple Spark job
+├── iceberg_crud.py         # Iceberg table operations
+├── minio_operations.py     # MinIO/S3 operations
+├── dags/                   # Complete DAG examples
+│   ├── example_spark_job.py
+│   ├── data_ingestion/
+│   └── data_transformation/
+├── spark-jobs/             # Complete Spark job examples
+│   ├── batch_processing.py
+│   ├── streaming_job.py
+│   └── iceberg_maintenance.py
+└── spark-lib/              # Reusable library examples
+    ├── transformations.py
+    ├── data_quality.py
+    └── utils.py
+```
+
+**Load examples into your project:**
+```bash
+make load-examples
+```
+
+This copies all examples to their respective directories for testing and learning.
 
 ## Documentation
 
