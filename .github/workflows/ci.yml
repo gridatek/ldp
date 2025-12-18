@@ -36,10 +36,10 @@ jobs:
           cd terraform
           terraform validate
 
-      - name: Terraform Plan (Dev)
+      - name: Terraform Plan (Local)
         run: |
           cd terraform
-          terraform plan -var-file=environments/dev.tfvars -out=tfplan
+          terraform plan -var-file=environments/local.tfvars -out=tfplan
         continue-on-error: true
 
   python-lint-and-test:
@@ -337,7 +337,7 @@ jobs:
         run: |
           cd terraform
           terraform init -backend=false
-          terraform apply -var-file=environments/dev.tfvars -auto-approve
+          terraform apply -var-file=environments/local.tfvars -auto-approve
         timeout-minutes: 20
 
       - name: Wait for Airflow database migrations

@@ -222,14 +222,12 @@ cp config/env/.env.example .env
 ### Terraform Variables
 
 Customize deployment in `terraform/environments/`:
-- `dev.tfvars` - Development
-- `staging.tfvars` - Staging
-- `prod.tfvars` - Production
+- `local.tfvars` - Local development (default)
 
-Apply with specific environment:
+Apply with local configuration:
 ```bash
 cd terraform
-terraform apply -var-file=environments/dev.tfvars
+terraform apply -var-file=environments/local.tfvars
 ```
 
 ## Troubleshooting
