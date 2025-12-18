@@ -330,6 +330,89 @@ jobs:
           chmod +x scripts/common/*.sh
           echo "✓ Scripts are executable"
 
+  e2e-tests-linux:
+    name: E2E Tests (Linux)
+    runs-on: ubuntu-latest
+    needs: linux-integration-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          cpus: 2
+          memory: 4096
+          kubernetes-version: 1.34.0
+
+      - name: Verify Minikube
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Test Terraform Apply (Dry Run)
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform plan -var-file=environments/local.tfvars -out=tfplan
+
+      - name: Deploy Platform
+        run: |
+          cd terraform
+          terraform apply -var-file=environments/local.tfvars -auto-approve
+        timeout-minutes: 15
+
+      - name: Wait for Pods
+        run: |
+          echo "Waiting for pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n ldp --timeout=300s || true
+
+      - name: Check Pod Status
+        run: |
+          echo "Checking pod status:"
+          kubectl get pods -n ldp
+          kubectl get services -n ldp
+
+      - name: Test Platform Health
+        run: |
+          # Check if critical pods are running
+          AIRFLOW=$(kubectl get pods -n ldp -l component=webserver -o jsonpath='{.items[0].status.phase}')
+          SPARK=$(kubectl get pods -n ldp -l component=master -o jsonpath='{.items[0].status.phase}')
+          MINIO=$(kubectl get pods -n ldp -l app=minio -o jsonpath='{.items[0].status.phase}')
+
+          echo "Airflow: $AIRFLOW"
+          echo "Spark: $SPARK"
+          echo "MinIO: $MINIO"
+
+          if [ "$AIRFLOW" = "Running" ] && [ "$SPARK" = "Running" ] && [ "$MINIO" = "Running" ]; then
+            echo "✅ All critical services are running"
+          else
+            echo "⚠️ Some services are not running"
+            kubectl get pods -n ldp
+          fi
+
+      - name: Cleanup on Failure
+        if: failure()
+        run: |
+          echo "Describing failed pods:"
+          kubectl get pods -n ldp --field-selector=status.phase!=Running --no-headers | \
+            awk '{print $1}' | while read pod; do
+              echo "=== Pod: $pod ==="
+              kubectl describe pod $pod -n ldp
+              kubectl logs $pod -n ldp --tail=50 || true
+            done
+
+      - name: Destroy Platform
+        if: always()
+        run: |
+          cd terraform
+          terraform destroy -var-file=environments/local.tfvars -auto-approve || true
+
   documentation-validation:
     name: Platform Documentation
     runs-on: ubuntu-latest
@@ -389,6 +472,7 @@ jobs:
       - windows-integration-tests
       - macos-integration-tests
       - linux-integration-tests
+      - e2e-tests-linux
       - documentation-validation
     if: always()
     steps:
@@ -399,12 +483,14 @@ jobs:
           echo "Windows Integration: ${{ needs.windows-integration-tests.result }}"
           echo "macOS Integration:   ${{ needs.macos-integration-tests.result }}"
           echo "Linux Integration:   ${{ needs.linux-integration-tests.result }}"
+          echo "Linux E2E Tests:     ${{ needs.e2e-tests-linux.result }}"
           echo "Documentation:       ${{ needs.documentation-validation.result }}"
           echo ""
 
           if [ "${{ needs.windows-integration-tests.result }}" = "success" ] && \
              [ "${{ needs.macos-integration-tests.result }}" = "success" ] && \
              [ "${{ needs.linux-integration-tests.result }}" = "success" ] && \
+             [ "${{ needs.e2e-tests-linux.result }}" = "success" ] && \
              [ "${{ needs.documentation-validation.result }}" = "success" ]; then
             echo "✅ All platform tests passed!"
             exit 0
