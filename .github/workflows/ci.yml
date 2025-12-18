@@ -414,29 +414,21 @@ jobs:
       - name: Upload test data to MinIO
         run: |
           echo "Creating sample test data..."
-          cat > /tmp/sample_data.csv <<'EOF'
-          id,name,value,date
-          1,product_a,100,2024-01-01
-          2,product_b,200,2024-01-02
-          3,product_c,300,2024-01-03
-          4,product_d,400,2024-01-04
-          5,product_e,500,2024-01-05
-          EOF
-
           echo "Uploading test data to MinIO using mc client..."
-          kubectl run minio-upload --rm -i --restart=Never --image=minio/mc:latest -n ldp -- \
-            sh -c "
-              mc alias set ldp http://minio:9000 admin minioadmin && \
-              mc mb --ignore-existing ldp/datalake/raw/test && \
-              echo 'id,name,value,date
-          1,product_a,100,2024-01-01
-          2,product_b,200,2024-01-02
-          3,product_c,300,2024-01-03
-          4,product_d,400,2024-01-04
-          5,product_e,500,2024-01-05' | mc pipe ldp/datalake/raw/test/sample_data.csv && \
-              echo 'Test data uploaded successfully' && \
+          kubectl run minio-upload --rm -i --restart=Never \
+            --image=minio/mc:latest -n ldp \
+            --command -- /bin/sh -c '
+              mc alias set ldp http://minio:9000 admin minioadmin &&
+              mc mb --ignore-existing ldp/datalake/raw/test &&
+              echo "id,name,value,date
+1,product_a,100,2024-01-01
+2,product_b,200,2024-01-02
+3,product_c,300,2024-01-03
+4,product_d,400,2024-01-04
+5,product_e,500,2024-01-05" | mc pipe ldp/datalake/raw/test/sample_data.csv &&
+              echo "Test data uploaded successfully" &&
               mc ls ldp/datalake/raw/test/
-            "
+            '
 
       - name: Test complete data pipeline
         run: |
