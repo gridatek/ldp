@@ -13,7 +13,7 @@ This guide explains exactly where to place your custom code in the LDP project.
 | **SQL queries** | `spark/sql/*.sql` |
 | **Custom Airflow operators** | `airflow/plugins/custom_operators/*.py` |
 | **Input data files** | `data/raw/*` |
-| **Configuration** | `config/env/.env` |
+| **Configuration** | `terraform/environments/*.tfvars` |
 
 ## Project Structure for Your Code
 
@@ -279,26 +279,26 @@ aws s3 cp data/raw/my_data.csv s3://data/raw/ --endpoint-url http://minio:9000
 
 ---
 
-### 8. Configuration (`config/env/`)
+### 8. Configuration
 
-**Environment variables:**
-```bash
-# config/env/.env
-AWS_ACCESS_KEY_ID=admin
-AWS_SECRET_ACCESS_KEY=minioadmin
-MINIO_ENDPOINT=http://minio:9000
-DATABASE_URL=postgresql://user:pass@postgres:5432/db
-```
+**Platform configuration** is managed through:
+- **Terraform variables**: `terraform/environments/*.tfvars`
+- **Helm values**: `terraform/helm-values/*.yaml`
 
-**Usage in code:**
+**Environment variables in your code:**
 ```python
 import os
-from dotenv import load_dotenv
 
-load_dotenv('config/env/.env')
-
-minio_endpoint = os.getenv('MINIO_ENDPOINT')
+# These are set via Kubernetes ConfigMaps/Secrets
+minio_endpoint = os.getenv('MINIO_ENDPOINT', 'http://minio:9000')
+aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'admin')
 ```
+
+**Configuration best practices:**
+- Use Terraform variables for infrastructure settings
+- Use Kubernetes ConfigMaps for non-sensitive config
+- Use Kubernetes Secrets for sensitive data
+- Use environment variables in your application code
 
 ---
 

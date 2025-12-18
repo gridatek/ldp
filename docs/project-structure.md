@@ -128,11 +128,8 @@ ldp/
 ├── config/                       # Application configs
 │   ├── iceberg/
 │   │   └── catalog.properties
-│   ├── hive/
-│   │   └── hive-site.xml
-│   └── env/
-│       ├── .env.example
-│       └── dev.env
+│   └── hive/
+│       └── hive-site.xml
 │
 ├── docs/                         # Documentation
 │   ├── setup.md
@@ -256,8 +253,8 @@ Use `make load-examples` to copy all example code and tests into your project di
 
 - **Makefile**: Automates common tasks
 - **README.md**: Quick start and overview
-- **.env.example**: Template for environment variables
-- **requirements.txt**: Python dependencies
+- **terraform/environments/*.tfvars**: Infrastructure configuration
+- **terraform/helm-values/*.yaml**: Kubernetes deployment configuration
 
 ## Usage Patterns
 
