@@ -124,7 +124,8 @@ class TestAirflowSparkIntegration:
             )
 
             assert operator.task_id == "test_spark_submit"
-            assert operator.conn_id == "spark_default"
+            # In Airflow provider version 5.0.0+, conn_id is stored as _conn_id (private)
+            assert operator._conn_id == "spark_default"
             # In newer Airflow versions, use public API instead of _conf
             assert hasattr(operator, 'conf') or hasattr(operator, '_conf')
             conf_dict = operator.conf if hasattr(operator, 'conf') else operator._conf
