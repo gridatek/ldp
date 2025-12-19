@@ -317,70 +317,49 @@ terraform validate
 
 ---
 
-### Phase 5: PySpark 4.0 Migration (HIGH RISK)
+### Phase 5: PySpark 4.0 Migration ✅ COMPLETED
 
 **Goal**: Upgrade to PySpark 4.0 for performance improvements
 
-⚠️ **Prerequisites**:
-- Python >= 3.10 in Docker base images
-- Apache Iceberg supports only Spark 4.0, NOT 4.1
+**Status**: ✅ **COMPLETED** on 2025-12-19
+- Branch: `phase5-pyspark-4.0-migration`
+- Updated PySpark from 3.5.0 to 4.0.1
+- Updated Spark Docker base image to 4.0.1-python3
+- Updated Iceberg runtime JAR: Spark 3.5/Scala 2.12 → Spark 4.0/Scala 2.13
+- Updated Hadoop AWS from 3.3.4 to 3.4.1
 
-**Updates Required**:
+**Files Modified**:
+- `docker/spark/requirements.txt` - PySpark 3.5.0 → 4.0.1
+- `docker/jupyter/requirements.txt` - PySpark 3.5.0 → 4.0.1
+- `docker/spark/Dockerfile` - Spark base image 3.5.0 → 4.0.1
+- `docker/jupyter/Dockerfile` - Updated Spark packages for 4.0
 
-1. **Spark Requirements** (`docker/spark/requirements.txt`):
-```yaml
-# Current
-pyspark==3.5.0
+**Breaking Changes Applied**:
+- Python >= 3.10 required (provided by base images)
+- Scala version changed: 2.12 → 2.13
+- Iceberg runtime JAR updated for Spark 4.0
+- Hadoop AWS library updated: 3.3.4 → 3.4.1
 
-# New
-pyspark==4.0.1  # NOT 4.1.0 due to Iceberg compatibility
-```
+**Next Steps - CRITICAL TESTING REQUIRED**:
+⚠️ This is a major Spark upgrade. Test thoroughly!
 
-2. **Jupyter Requirements** (`docker/jupyter/requirements.txt`):
-```yaml
-pyspark==4.0.1
-```
-
-3. **Spark Docker Base Image** (`docker/spark/Dockerfile`):
-```dockerfile
-# Current
-FROM apache/spark:3.5.0-python3
-
-# New
-FROM apache/spark:4.0.1-python3
-```
-
-4. **Jupyter Spark Packages** (`docker/jupyter/Dockerfile`):
-```dockerfile
-# Current
-ENV PYSPARK_SUBMIT_ARGS="--packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.10.0,org.apache.hadoop:hadoop-aws:3.3.4 pyspark-shell"
-
-# New
-ENV PYSPARK_SUBMIT_ARGS="--packages org.apache.iceberg:iceberg-spark-runtime-4.0_2.13:1.10.0,org.apache.hadoop:hadoop-aws:3.4.1 pyspark-shell"
-```
-
-**Breaking Changes**:
-- Python >= 3.10 required
-- Scala version changes (2.12 → 2.13)
-- API changes in PySpark 4.0
-- Iceberg runtime JAR version change
-
-**Testing Checklist**:
-- [ ] Spark master/worker start correctly
-- [ ] Spark UI accessible
-- [ ] Submit test Spark job
-- [ ] Read/write to MinIO
-- [ ] Iceberg table operations
-- [ ] Jupyter can connect to Spark
-- [ ] Run existing Airflow + Spark DAGs
-- [ ] Performance benchmarks
+1. Rebuild Docker images: `make build`
+2. Deploy locally: `make start`
+3. Testing checklist:
+   - [ ] Spark master/worker start correctly
+   - [ ] Spark UI accessible
+   - [ ] Submit test Spark job
+   - [ ] Read/write to MinIO
+   - [ ] Iceberg table operations
+   - [ ] Jupyter can connect to Spark
+   - [ ] Run existing Airflow + Spark DAGs
+   - [ ] Check for any PySpark 4.0 API deprecation warnings
+   - [ ] Performance benchmarks
 
 **Rollback**:
 - Revert Docker image changes
-- Rebuild images
-- Redeploy
-
-**Time Estimate**: 4-8 hours for migration + comprehensive testing
+- Rebuild images with `make build`
+- Redeploy with `make start`
 
 ---
 
@@ -538,6 +517,6 @@ Before proceeding, ask yourself:
 
 ---
 
-**Document Version**: 1.4
+**Document Version**: 1.5
 **Last Updated**: 2025-12-19
-**Status**: Phase 1, 2, 3 & 4 Completed - Critical Testing Required for Phase 4
+**Status**: Phase 1-5 Completed - Critical Testing Required for Phase 5 (PySpark 4.0)

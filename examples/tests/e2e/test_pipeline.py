@@ -472,9 +472,9 @@ class TestPipelineErrorHandling:
         ]
         df = spark_session.createDataFrame(data, ["id", "name", "amount"])
 
-        # Attempt transformation with error handling
+        # PySpark 4.0: Use try_cast() as Column method for malformed input (returns NULL)
         df_with_cast = df.withColumn(
-            "amount_double", col("amount").cast("double")
+            "amount_double", col("amount").try_cast("double")
         )
 
         # Rows with invalid data should have null
