@@ -1,5 +1,5 @@
 # Create namespace for data platform
-resource "kubernetes_namespace" "ldp" {
+resource "kubernetes_namespace_v1" "ldp" {
   metadata {
     name = var.namespace
     labels = {
@@ -9,10 +9,10 @@ resource "kubernetes_namespace" "ldp" {
 }
 
 # Kubernetes Secret for platform credentials
-resource "kubernetes_secret" "platform_secrets" {
+resource "kubernetes_secret_v1" "platform_secrets" {
   metadata {
     name      = "platform-secrets"
-    namespace = kubernetes_namespace.ldp.metadata[0].name
+    namespace = kubernetes_namespace_v1.ldp.metadata[0].name
   }
 
   data = {
@@ -31,7 +31,7 @@ resource "kubernetes_secret" "platform_secrets" {
 module "minio" {
   source = "./modules/minio"
 
-  namespace     = kubernetes_namespace.ldp.metadata[0].name
+  namespace     = kubernetes_namespace_v1.ldp.metadata[0].name
   root_user     = var.minio_root_user
   root_password = var.minio_root_password
 }
@@ -40,7 +40,7 @@ module "minio" {
 module "postgresql" {
   source = "./modules/postgresql"
 
-  namespace = kubernetes_namespace.ldp.metadata[0].name
+  namespace = kubernetes_namespace_v1.ldp.metadata[0].name
   username  = var.postgresql_username
   password  = var.postgresql_password
   database  = var.postgresql_database
@@ -50,7 +50,7 @@ module "postgresql" {
 module "airflow" {
   source = "./modules/airflow"
 
-  namespace       = kubernetes_namespace.ldp.metadata[0].name
+  namespace       = kubernetes_namespace_v1.ldp.metadata[0].name
   admin_username  = var.airflow_admin_username
   admin_password  = var.airflow_admin_password
   postgresql_host = "postgresql"
@@ -66,17 +66,17 @@ module "airflow" {
 module "spark" {
   source = "./modules/spark"
 
-  namespace       = kubernetes_namespace.ldp.metadata[0].name
+  namespace       = kubernetes_namespace_v1.ldp.metadata[0].name
   worker_replicas = var.spark_worker_replicas
 }
 
 # Jupyter Notebook for Spark development
-resource "kubernetes_deployment" "jupyter" {
+resource "kubernetes_deployment_v1" "jupyter" {
   depends_on = [module.spark, module.minio]
 
   metadata {
     name      = "jupyter"
-    namespace = kubernetes_namespace.ldp.metadata[0].name
+    namespace = kubernetes_namespace_v1.ldp.metadata[0].name
   }
 
   spec {
@@ -128,10 +128,10 @@ resource "kubernetes_deployment" "jupyter" {
   }
 }
 
-resource "kubernetes_service" "jupyter" {
+resource "kubernetes_service_v1" "jupyter" {
   metadata {
     name      = "jupyter"
-    namespace = kubernetes_namespace.ldp.metadata[0].name
+    namespace = kubernetes_namespace_v1.ldp.metadata[0].name
   }
 
   spec {
@@ -154,7 +154,7 @@ module "monitoring" {
   count  = var.enable_monitoring ? 1 : 0
   source = "./modules/monitoring"
 
-  namespace              = kubernetes_namespace.ldp.metadata[0].name
+  namespace              = kubernetes_namespace_v1.ldp.metadata[0].name
   grafana_admin_user     = var.grafana_admin_username
   grafana_admin_password = var.grafana_admin_password
 

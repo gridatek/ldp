@@ -1,6 +1,6 @@
 output "platform_info" {
   value = {
-    namespace = kubernetes_namespace.ldp.metadata[0].name
+    namespace = kubernetes_namespace_v1.ldp.metadata[0].name
     services = {
       airflow = {
         url      = "http://$(minikube ip):30080"
@@ -41,6 +41,6 @@ output "platform_info" {
 }
 
 output "namespace" {
-  value       = kubernetes_namespace.ldp.metadata[0].name
+  value       = kubernetes_namespace_v1.ldp.metadata[0].name
   description = "The Kubernetes namespace where the platform is deployed"
 }
