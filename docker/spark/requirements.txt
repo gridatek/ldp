@@ -2,9 +2,9 @@
 pyspark==4.0.1
 
 # Data processing
-pandas==2.1.4
-numpy==1.26.3
-pyarrow==14.0.2
+pandas==2.3.3
+numpy==2.3.5
+pyarrow==22.0.0
 
 # S3/MinIO support
 boto3>=1.37.2
