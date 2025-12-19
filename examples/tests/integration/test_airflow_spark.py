@@ -124,8 +124,11 @@ class TestAirflowSparkIntegration:
             )
 
             assert operator.task_id == "test_spark_submit"
-            assert operator._conn_id == "spark_default"
-            assert "spark.jars.packages" in operator._conf
+            assert operator.conn_id == "spark_default"
+            # In newer Airflow versions, use public API instead of _conf
+            assert hasattr(operator, 'conf') or hasattr(operator, '_conf')
+            conf_dict = operator.conf if hasattr(operator, 'conf') else operator._conf
+            assert "spark.jars.packages" in conf_dict
 
         except ImportError:
             pytest.skip("Airflow Spark provider not installed")
@@ -168,10 +171,9 @@ class TestAirflowSparkIntegration:
         aggregated = df.groupBy("date").sum("amount")
         assert aggregated.count() == 3
 
-        df_with_new_col = df.withColumn(
-            "processed_at",
-            spark_session.sql("SELECT current_timestamp()").collect()[0][0]
-        )
+        # PySpark 4.0 requires Column expressions, not Python objects
+        from pyspark.sql.functions import current_timestamp
+        df_with_new_col = df.withColumn("processed_at", current_timestamp())
         assert "processed_at" in df_with_new_col.columns
 
     def test_spark_sql_execution(self, spark_session):

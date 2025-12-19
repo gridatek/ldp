@@ -99,18 +99,15 @@ jobs:
         run: |
           export PYTHONPATH="${PYTHONPATH}:${PWD}/airflow"
           pytest airflow/tests/ -v --tb=short
-        continue-on-error: true
 
       - name: Test Spark transformations
         run: |
           export PYTHONPATH="${PYTHONPATH}:${PWD}/spark"
           pytest spark/tests/ -v --tb=short
-        continue-on-error: true
 
       - name: Run integration tests
         run: |
           pytest tests/ -v --tb=short -m "not e2e"
-        continue-on-error: true
 
   shellcheck:
     name: Shell Script Validation
