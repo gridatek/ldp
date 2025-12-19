@@ -3,7 +3,7 @@ resource "helm_release" "minio" {
   repository = "https://charts.min.io/"
   chart      = "minio"
   namespace  = var.namespace
-  version    = "5.0.14"
+  version    = "5.4.0"
 
   values = [
     <<-EOT
