@@ -4,8 +4,8 @@ apache-airflow-providers-amazon>=9.0.0
 
 # Data processing libraries
 pandas==2.3.3
-numpy==1.26.3
-pyarrow==14.0.2
+numpy==2.3.5
+pyarrow==22.0.0
 
 # Database connectors
 psycopg2-binary==2.9.9
