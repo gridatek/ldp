@@ -179,7 +179,12 @@ class ValidationRule:
 
         def check(df: DataFrame) -> ValidationResult:
             total = df.count()
-            null_count = df.filter(col(column).isNull() | isnan(column)).count()
+            # PySpark 4.0 requires type checking before using isnan()
+            col_type = df.schema[column].dataType.typeName()
+            if col_type in ('double', 'float'):
+                null_count = df.filter(col(column).isNull() | isnan(column)).count()
+            else:
+                null_count = df.filter(col(column).isNull()).count()
             failure_rate = null_count / total if total > 0 else 0
 
             passed = failure_rate <= threshold
