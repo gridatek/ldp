@@ -20,7 +20,7 @@ s3fs>=2024.10.0
 
 # Database connectivity
 sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
+psycopg2-binary>=2.9.10
 
 # Iceberg
 # pyiceberg==0.5.1  # Disabled due to dependency conflicts with s3fs
