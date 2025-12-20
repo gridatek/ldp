@@ -14,24 +14,51 @@ LDP is a local data platform that provides:
 ## Prerequisites
 
 Before you begin, ensure you have:
-- Docker and Docker Compose installed
+- **Docker Desktop** installed (Windows, macOS, or Linux)
+- **Docker Compose** (included with Docker Desktop)
 - Basic knowledge of Python and SQL
 - Understanding of data pipelines
+
+### Platform Support
+
+LDP works on:
+- ✅ **Windows** (Windows 10/11 with Docker Desktop)
+- ✅ **Linux** (Ubuntu, Fedora, etc.)
+- ✅ **macOS** (Intel and Apple Silicon)
+
+**For Windows users**: Commands in this tutorial are shown for both Windows (PowerShell/Command Prompt) and Linux/macOS (Bash). Look for the 💻 Windows and 🐧 Linux/macOS icons.
 
 ## Starting the Platform
 
 ### 1. Start all services
 
+**🐧 Linux/macOS:**
 ```bash
 make up
+```
+
+**💻 Windows (PowerShell):**
+```powershell
+docker-compose up -d
+```
+
+**💻 Windows (Command Prompt):**
+```cmd
+docker-compose up -d
 ```
 
 This will start all services: Airflow, Spark, MinIO, and PostgreSQL.
 
 ### 2. Verify services are running
 
+**🐧 Linux/macOS:**
 ```bash
 make status
+```
+
+**💻 Windows:**
+```powershell
+docker ps
 ```
 
 You should see all containers running.
@@ -52,6 +79,8 @@ Let's walk through a complete data pipeline using the tested example code provid
 - Scripts → `scripts/`
 
 This keeps the examples clean as reference material and teaches you the proper workflow.
+
+**Note for Windows users**: Replace forward slashes (`/`) with backslashes (`\`) in file paths, or use PowerShell which supports both.
 
 ### Example 1: Working with MinIO (Object Storage)
 
@@ -126,14 +155,27 @@ if __name__ == "__main__":
 **To run this example:**
 
 1. First, copy it to your working directory:
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/minio_operations.py scripts/
+   ```
+
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\minio_operations.py scripts\
+   ```
+
+   **💻 Windows (Command Prompt):**
+   ```cmd
+   copy examples\minio_operations.py scripts\
    ```
 
 2. Then run it:
    ```bash
    python scripts/minio_operations.py
    ```
+   *(Same command for all platforms)*
 
 **Note**: Never run code directly from `examples/` - always copy it to the appropriate location first. This keeps the examples clean as reference material.
 
@@ -196,13 +238,32 @@ if __name__ == "__main__":
 **To run this example:**
 
 1. First, copy it to the Spark jobs directory:
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/spark_job.py spark/jobs/
    ```
 
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\spark_job.py spark\jobs\
+   ```
+
+   **💻 Windows (Command Prompt):**
+   ```cmd
+   copy examples\spark_job.py spark\jobs\
+   ```
+
 2. Then submit to the Spark cluster:
+
+   **🐧 Linux/macOS:**
    ```bash
    make spark-submit APP=spark/jobs/spark_job.py
+   ```
+
+   **💻 Windows:**
+   ```powershell
+   docker-compose exec spark-master spark-submit --master spark://spark-master:7077 /opt/spark/jobs/spark_job.py
    ```
 
 **Note**: Always copy examples to `spark/jobs/` before running, not from `examples/` directly.
@@ -253,13 +314,32 @@ spark.sql("SELECT * FROM local.demo.users.history").show()
 **To run this example:**
 
 1. First, copy it to the Spark jobs directory:
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/iceberg_crud.py spark/jobs/
    ```
 
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\iceberg_crud.py spark\jobs\
+   ```
+
+   **💻 Windows (Command Prompt):**
+   ```cmd
+   copy examples\iceberg_crud.py spark\jobs\
+   ```
+
 2. Then submit to the Spark cluster:
+
+   **🐧 Linux/macOS:**
    ```bash
    make spark-submit APP=spark/jobs/iceberg_crud.py
+   ```
+
+   **💻 Windows:**
+   ```powershell
+   docker-compose exec spark-master spark-submit --master spark://spark-master:7077 /opt/spark/jobs/iceberg_crud.py
    ```
 
 ### Example 4: Airflow DAG (Workflow Orchestration)
@@ -319,15 +399,34 @@ with DAG(
 **To run this example:**
 
 1. **First, copy** the DAG file to the Airflow DAGs folder:
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/simple_dag.py airflow/dags/
+   ```
+
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\simple_dag.py airflow\dags\
+   ```
+
+   **💻 Windows (Command Prompt):**
+   ```cmd
+   copy examples\simple_dag.py airflow\dags\
    ```
 
 2. Wait for Airflow to detect it (1-2 minutes)
 
 3. Trigger the DAG from the Airflow UI or CLI:
+
+   **🐧 Linux/macOS:**
    ```bash
    make airflow-trigger DAG=simple_example
+   ```
+
+   **💻 Windows:**
+   ```powershell
+   docker-compose exec airflow-webserver airflow dags trigger simple_example
    ```
 
 **Important**: DAGs must be in `airflow/dags/` to be discovered by Airflow. Never reference `examples/` directly in your DAG paths.
@@ -365,8 +464,20 @@ def upload_to_minio(**context):
 **To use this example:**
 
 1. **Copy to your DAGs directory:**
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/dags/data_ingestion/ingest_daily.py airflow/dags/
+   ```
+
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\dags\data_ingestion\ingest_daily.py airflow\dags\
+   ```
+
+   **💻 Windows (Command Prompt):**
+   ```cmd
+   copy examples\dags\data_ingestion\ingest_daily.py airflow\dags\
    ```
 
 2. Wait for Airflow to detect it, then trigger from the UI
@@ -397,8 +508,20 @@ transform_raw_data = SparkSubmitOperator(
 **To use this example:**
 
 1. **Copy to your DAGs directory:**
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/dags/data_transformation/transform_pipeline.py airflow/dags/
+   ```
+
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\dags\data_transformation\transform_pipeline.py airflow\dags\
+   ```
+
+   **💻 Windows (Command Prompt):**
+   ```cmd
+   copy examples\dags\data_transformation\transform_pipeline.py airflow\dags\
    ```
 
 2. Wait for Airflow to detect it, then trigger from the UI
@@ -418,23 +541,49 @@ Now that you've seen the examples, here's how to build your own pipeline:
 ### Step 2: Create Your Spark Job
 
 1. Copy an example as a starting point:
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/spark_job.py spark/jobs/my_job.py
    ```
+
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\spark_job.py spark\jobs\my_job.py
+   ```
+
 2. Edit `spark/jobs/my_job.py` with your transformations
+
 3. Test it:
+
+   **🐧 Linux/macOS:**
    ```bash
    make spark-submit APP=spark/jobs/my_job.py
+   ```
+
+   **💻 Windows:**
+   ```powershell
+   docker-compose exec spark-master spark-submit --master spark://spark-master:7077 /opt/spark/jobs/my_job.py
    ```
 
 ### Step 3: Create Your Airflow DAG
 
 1. Copy an example as a starting point:
+
+   **🐧 Linux/macOS:**
    ```bash
    cp examples/simple_dag.py airflow/dags/my_pipeline.py
    ```
+
+   **💻 Windows (PowerShell):**
+   ```powershell
+   Copy-Item examples\simple_dag.py airflow\dags\my_pipeline.py
+   ```
+
 2. Edit `airflow/dags/my_pipeline.py` with your logic
+
 3. Airflow will automatically detect it
+
 4. Test and monitor in the Airflow UI
 
 ### Step 4: Monitor and Debug
@@ -511,10 +660,19 @@ datalake/
 ## Troubleshooting
 
 ### Services won't start
+
+**🐧 Linux/macOS:**
 ```bash
 make down
 make clean
 make up
+```
+
+**💻 Windows:**
+```powershell
+docker-compose down
+docker system prune -f
+docker-compose up -d
 ```
 
 ### Can't connect to MinIO
@@ -522,11 +680,24 @@ make up
 - Verify endpoint: `http://localhost:9000` (API) or `http://localhost:9001` (Console)
 
 ### Airflow DAG not showing up
+
+**🐧 Linux/macOS:**
 - Check DAG file syntax: `make airflow-check`
 - View Airflow logs: `make airflow-logs`
 
+**💻 Windows:**
+- Check syntax: `python airflow/dags/your_dag.py`
+- View logs: `docker logs ldp-airflow-webserver`
+
 ### Spark job failing
+
+**🐧 Linux/macOS:**
 - Check Spark logs: `make spark-logs`
+
+**💻 Windows:**
+- Check logs: `docker logs ldp-spark-master`
+
+**All platforms:**
 - Verify Iceberg configuration in `config/iceberg/catalog.properties`
 
 ## Next Steps
@@ -541,10 +712,41 @@ make up
 
 ## Additional Resources
 
-- **Makefile Commands**: Run `make help` to see all available commands
+- **Commands**:
+  - Linux/macOS: Run `make help` to see all available commands
+  - Windows: Use `docker-compose` commands directly or see commands in `Makefile`
 - **Configuration Files**: See `config/` directory for all service configurations
 - **Testing**: See `examples/tests/` for test examples
 - **Production Guide**: See `docs/production-guide.md` for deployment guidance
+
+## Platform-Specific Notes
+
+### Windows Users
+
+**File Paths:**
+- Windows uses backslashes `\` for paths (e.g., `airflow\dags\`)
+- PowerShell supports both `/` and `\`
+- Always use forward slashes `/` inside Docker containers
+
+**Common Commands:**
+| Task | Linux/macOS | Windows |
+|------|-------------|---------|
+| Copy file | `cp source dest` | `Copy-Item source dest` or `copy source dest` |
+| List files | `ls` | `dir` or `Get-ChildItem` |
+| Start platform | `make up` | `docker-compose up -d` |
+| Stop platform | `make down` | `docker-compose down` |
+| View logs | `make logs` | `docker-compose logs` |
+
+**Recommended Setup:**
+- Use **PowerShell** (more powerful than Command Prompt)
+- Or use **WSL (Windows Subsystem for Linux)** for full Linux compatibility
+- Install **Docker Desktop for Windows**
+
+### Linux/macOS Users
+
+- Use the `Makefile` for convenient commands
+- All `make` commands work out of the box
+- Bash scripts in `scripts/` directory can be run directly
 
 ## Summary
 
