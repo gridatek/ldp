@@ -15,12 +15,13 @@ pyspark==4.0.1
 pyarrow==22.0.0
 
 # S3/MinIO
-boto3==1.34.21
-s3fs==2024.2.0
+boto3>=1.37.2
+s3fs==2024.12.0
+fsspec==2024.12.0
 
 # Database connectivity
 sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
+psycopg2-binary>=2.9.10
 
 # Iceberg
 # pyiceberg==0.5.1  # Disabled due to dependency conflicts with s3fs

@@ -8,7 +8,8 @@ pyarrow==22.0.0
 
 # S3/MinIO support
 boto3>=1.37.2
-s3fs==2023.12.2
+s3fs==2024.12.0
+fsspec==2024.12.0
 
 # Iceberg support (Python side)
 # PyIceberg 0.10.0 - enhanced Iceberg table operations
