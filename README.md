@@ -422,42 +422,10 @@ Each major directory has its own README explaining its purpose:
 
 See the **[Documentation Index](docs/)** for the complete list.
 
-## Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Run tests: `make test`
-4. Submit a pull request
 
 ## License
 
 MIT License
-
-## Recent Updates
-
-### December 2024
-
-**🎉 Major Documentation Update**
-- Added comprehensive [Getting Started Tutorial](docs/getting-started-tutorial.md) with tested examples
-- Added README files to all major directories explaining their purpose
-- Cross-platform support documentation (Windows PowerShell + Linux/macOS Bash)
-- Examples directory is now clearly optional and can be deleted if desired
-
-**🔧 Dependency Updates**
-- Fixed: Pinned s3fs==2024.12.0 and fsspec==2024.12.0 to avoid yanked PyPI versions
-- Updated: Python 3.13, Airflow 3.1.5, PySpark 4.0.1
-- Updated: NumPy 2.3.5, Pandas 2.3.3, PyArrow 22.0.0
-- See [UPGRADE-PLAN-2025](docs/UPGRADE-PLAN-2025.md) for migration details
-
-**📝 Documentation Improvements**
-- Clarified that LDP uses Minikube + Terraform (not docker-compose)
-- Added Windows-first documentation with PowerShell scripts
-- Tutorial uses actual scripts instead of make commands for clarity
-- Added examples of Iceberg CRUD, MinIO operations, and Airflow DAGs
-
-**🗑️ Cleanup**
-- Removed Hive configuration (LDP uses Iceberg only)
-- Clarified examples/ directory is optional reference material
 
 ## Support
 
