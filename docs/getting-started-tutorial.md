@@ -13,61 +13,126 @@ LDP is a local data platform that provides:
 
 ## Prerequisites
 
-Before you begin, ensure you have:
-- **Docker Desktop** installed (Windows, macOS, or Linux)
-- **Docker Compose** (included with Docker Desktop)
+Before you begin, ensure you have installed:
+- **Minikube** - Local Kubernetes cluster
+- **kubectl** - Kubernetes command-line tool
+- **Terraform** - Infrastructure as Code tool
+- **Helm** - Kubernetes package manager
 - Basic knowledge of Python and SQL
 - Understanding of data pipelines
 
 ### Platform Support
 
 LDP works on:
-- ✅ **Windows** (Windows 10/11 with Docker Desktop)
+- ✅ **Windows** (Windows 10/11)
 - ✅ **Linux** (Ubuntu, Fedora, etc.)
 - ✅ **macOS** (Intel and Apple Silicon)
 
-**For Windows users**: Commands in this tutorial are shown for both Windows (PowerShell/Command Prompt) and Linux/macOS (Bash). Look for the 💻 Windows and 🐧 Linux/macOS icons.
+### Installation
+
+**💻 Windows (PowerShell - Run as Administrator):**
+
+Using Chocolatey (recommended):
+```powershell
+choco install minikube kubectl terraform kubernetes-helm
+```
+
+Using winget:
+```powershell
+winget install Kubernetes.minikube
+winget install Kubernetes.kubectl
+winget install Hashicorp.Terraform
+winget install Helm.Helm
+```
+
+**🐧 Linux:**
+```bash
+# Follow installation guides at:
+# - Minikube: https://minikube.sigs.k8s.io/docs/start/
+# - kubectl: https://kubernetes.io/docs/tasks/tools/
+# - Terraform: https://www.terraform.io/downloads
+# - Helm: https://helm.sh/docs/intro/install/
+```
+
+**🍎 macOS:**
+```bash
+brew install minikube kubectl terraform helm
+```
+
+**For Windows users**: All commands in this tutorial use PowerShell scripts. Look for the 💻 and 🐧 icons.
 
 ## Starting the Platform
 
-### 1. Start all services
-
-**🐧 Linux/macOS:**
-```bash
-make up
-```
+### 1. Initial Setup (First Time Only)
 
 **💻 Windows (PowerShell):**
 ```powershell
-docker-compose up -d
+.\scripts\windows\setup.ps1
 ```
-
-**💻 Windows (Command Prompt):**
-```cmd
-docker-compose up -d
-```
-
-This will start all services: Airflow, Spark, MinIO, and PostgreSQL.
-
-### 2. Verify services are running
 
 **🐧 Linux/macOS:**
 ```bash
-make status
+./scripts/setup.sh
 ```
 
-**💻 Windows:**
+This will:
+- Start Minikube (local Kubernetes cluster)
+- Enable required addons
+- Verify prerequisites
+
+### 2. Deploy the Platform
+
+**💻 Windows (PowerShell):**
 ```powershell
-docker ps
+.\scripts\windows\start.ps1
 ```
 
-You should see all containers running.
+**🐧 Linux/macOS:**
+```bash
+./scripts/start.sh
+```
 
-### 3. Access the web interfaces
+This will:
+- Initialize Terraform
+- Deploy all services to Kubernetes (Airflow, Spark, MinIO, PostgreSQL)
+- Takes 10-15 minutes on first run
 
-- **Airflow UI**: http://localhost:8080 (username: `admin`, password: `admin`)
-- **MinIO Console**: http://localhost:9001 (username: `admin`, password: `minioadmin`)
-- **Spark Master**: http://localhost:8081
+### 3. Verify services are running
+
+**💻 Windows (PowerShell):**
+```powershell
+.\scripts\windows\check-health.ps1
+```
+
+**🐧 Linux/macOS:**
+```bash
+./scripts/check-health.sh
+```
+
+### 4. Get service URLs
+
+**💻 Windows (PowerShell):**
+```powershell
+$minikubeIp = minikube ip
+Write-Host "Airflow UI: http://${minikubeIp}:30080"
+Write-Host "MinIO Console: http://${minikubeIp}:30901"
+Write-Host "Spark Master: http://${minikubeIp}:30707"
+Write-Host "Jupyter: http://${minikubeIp}:30888"
+```
+
+**🐧 Linux/macOS:**
+```bash
+minikube ip
+# Use the IP with these ports:
+# Airflow UI: http://<minikube-ip>:30080
+# MinIO Console: http://<minikube-ip>:30901
+# Spark Master: http://<minikube-ip>:30707
+# Jupyter: http://<minikube-ip>:30888
+```
+
+**Default Credentials:**
+- Airflow: username `admin`, password `admin`
+- MinIO: username `admin`, password `minioadmin`
 
 ## Your First Data Pipeline
 
@@ -256,14 +321,9 @@ if __name__ == "__main__":
 
 2. Then submit to the Spark cluster:
 
-   **🐧 Linux/macOS:**
+   **Both Windows and Linux/macOS:**
    ```bash
-   make spark-submit APP=spark/jobs/spark_job.py
-   ```
-
-   **💻 Windows:**
-   ```powershell
-   docker-compose exec spark-master spark-submit --master spark://spark-master:7077 /opt/spark/jobs/spark_job.py
+   kubectl exec -n ldp deployment/spark-master -- spark-submit --master spark://spark-master:7077 /opt/spark/jobs/spark_job.py
    ```
 
 **Note**: Always copy examples to `spark/jobs/` before running, not from `examples/` directly.
@@ -332,14 +392,9 @@ spark.sql("SELECT * FROM local.demo.users.history").show()
 
 2. Then submit to the Spark cluster:
 
-   **🐧 Linux/macOS:**
+   **Both Windows and Linux/macOS:**
    ```bash
-   make spark-submit APP=spark/jobs/iceberg_crud.py
-   ```
-
-   **💻 Windows:**
-   ```powershell
-   docker-compose exec spark-master spark-submit --master spark://spark-master:7077 /opt/spark/jobs/iceberg_crud.py
+   kubectl exec -n ldp deployment/spark-master -- spark-submit --master spark://spark-master:7077 /opt/spark/jobs/iceberg_crud.py
    ```
 
 ### Example 4: Airflow DAG (Workflow Orchestration)
@@ -419,14 +474,9 @@ with DAG(
 
 3. Trigger the DAG from the Airflow UI or CLI:
 
-   **🐧 Linux/macOS:**
+   **Both Windows and Linux/macOS:**
    ```bash
-   make airflow-trigger DAG=simple_example
-   ```
-
-   **💻 Windows:**
-   ```powershell
-   docker-compose exec airflow-webserver airflow dags trigger simple_example
+   kubectl exec -n ldp deployment/airflow-webserver -- airflow dags trigger simple_example
    ```
 
 **Important**: DAGs must be in `airflow/dags/` to be discovered by Airflow. Never reference `examples/` directly in your DAG paths.
@@ -556,14 +606,9 @@ Now that you've seen the examples, here's how to build your own pipeline:
 
 3. Test it:
 
-   **🐧 Linux/macOS:**
+   **Both Windows and Linux/macOS:**
    ```bash
-   make spark-submit APP=spark/jobs/my_job.py
-   ```
-
-   **💻 Windows:**
-   ```powershell
-   docker-compose exec spark-master spark-submit --master spark://spark-master:7077 /opt/spark/jobs/my_job.py
+   kubectl exec -n ldp deployment/spark-master -- spark-submit --master spark://spark-master:7077 /opt/spark/jobs/my_job.py
    ```
 
 ### Step 3: Create Your Airflow DAG
@@ -661,41 +706,76 @@ datalake/
 
 ### Services won't start
 
+**💻 Windows (PowerShell):**
+```powershell
+# Stop and clean up
+.\scripts\windows\stop.ps1
+
+# Restart Minikube
+minikube stop
+minikube delete
+minikube start --cpus=4 --memory=8192
+
+# Deploy again
+.\scripts\windows\setup.ps1
+.\scripts\windows\start.ps1
+```
+
 **🐧 Linux/macOS:**
 ```bash
-make down
-make clean
-make up
+./scripts/cleanup.sh
+./scripts/setup.sh
+./scripts/start.sh
 ```
+
+### Can't connect to services
+
+**Check if services are running:**
 
 **💻 Windows:**
 ```powershell
-docker-compose down
-docker system prune -f
-docker-compose up -d
+kubectl get pods -n ldp
 ```
 
-### Can't connect to MinIO
-- Check MinIO is running: `docker ps | grep minio`
-- Verify endpoint: `http://localhost:9000` (API) or `http://localhost:9001` (Console)
+**🐧 Linux/macOS:**
+```bash
+kubectl get pods -n ldp
+```
+
+**Get service URLs:**
+```bash
+minikube ip
+# Access services at http://<ip>:<port>
+# Ports: Airflow=30080, MinIO=30901, Spark=30707, Jupyter=30888
+```
 
 ### Airflow DAG not showing up
 
-**🐧 Linux/macOS:**
-- Check DAG file syntax: `make airflow-check`
-- View Airflow logs: `make airflow-logs`
-
 **💻 Windows:**
-- Check syntax: `python airflow/dags/your_dag.py`
-- View logs: `docker logs ldp-airflow-webserver`
+```powershell
+# Check syntax
+python airflow/dags/your_dag.py
+
+# View logs
+kubectl logs -n ldp deployment/airflow-webserver
+```
+
+**🐧 Linux/macOS:**
+```bash
+kubectl logs -n ldp deployment/airflow-webserver
+```
 
 ### Spark job failing
 
-**🐧 Linux/macOS:**
-- Check Spark logs: `make spark-logs`
-
 **💻 Windows:**
-- Check logs: `docker logs ldp-spark-master`
+```powershell
+kubectl logs -n ldp deployment/spark-master
+```
+
+**🐧 Linux/macOS:**
+```bash
+kubectl logs -n ldp deployment/spark-master
+```
 
 **All platforms:**
 - Verify Iceberg configuration in `config/iceberg/catalog.properties`
@@ -712,9 +792,10 @@ docker-compose up -d
 
 ## Additional Resources
 
-- **Commands**:
-  - Linux/macOS: Run `make help` to see all available commands
-  - Windows: Use `docker-compose` commands directly or see commands in `Makefile`
+- **Scripts**:
+  - Linux/macOS: Use bash scripts in `scripts/`
+  - Windows: Use PowerShell scripts in `scripts/windows/`
+  - Advanced users: See `Makefile` for convenience wrappers
 - **Configuration Files**: See `config/` directory for all service configurations
 - **Testing**: See `examples/tests/` for test examples
 - **Production Guide**: See `docs/production-guide.md` for deployment guidance
@@ -723,30 +804,47 @@ docker-compose up -d
 
 ### Windows Users
 
+**Available PowerShell Scripts:**
+- `.\scripts\windows\setup.ps1` - Initial setup (first time only)
+- `.\scripts\windows\start.ps1` - Deploy/start the platform
+- `.\scripts\windows\stop.ps1` - Stop the platform
+- `.\scripts\windows\check-health.ps1` - Health checks
+
 **File Paths:**
 - Windows uses backslashes `\` for paths (e.g., `airflow\dags\`)
 - PowerShell supports both `/` and `\`
-- Always use forward slashes `/` inside Docker containers
+- Always use forward slashes `/` inside Kubernetes pods
 
 **Common Commands:**
-| Task | Linux/macOS | Windows |
-|------|-------------|---------|
-| Copy file | `cp source dest` | `Copy-Item source dest` or `copy source dest` |
+| Task | Linux/macOS | Windows (PowerShell) |
+|------|-------------|----------------------|
+| Copy file | `cp source dest` | `Copy-Item source dest` |
 | List files | `ls` | `dir` or `Get-ChildItem` |
-| Start platform | `make up` | `docker-compose up -d` |
-| Stop platform | `make down` | `docker-compose down` |
-| View logs | `make logs` | `docker-compose logs` |
+| Setup platform | `./scripts/setup.sh` | `.\scripts\windows\setup.ps1` |
+| Start platform | `./scripts/start.sh` | `.\scripts\windows\start.ps1` |
+| Stop platform | `./scripts/stop.sh` | `.\scripts\windows\stop.ps1` |
+| Health check | `./scripts/check-health.sh` | `.\scripts\windows\check-health.ps1` |
+| View logs | `kubectl logs -n ldp deployment/service-name` | `kubectl logs -n ldp deployment/service-name` |
+| List pods | `kubectl get pods -n ldp` | `kubectl get pods -n ldp` |
 
-**Recommended Setup:**
-- Use **PowerShell** (more powerful than Command Prompt)
-- Or use **WSL (Windows Subsystem for Linux)** for full Linux compatibility
-- Install **Docker Desktop for Windows**
+**Prerequisites:**
+- Install Minikube, kubectl, Terraform, Helm (see Prerequisites section)
+- Hyper-V or Docker Desktop for Minikube driver
+- Run PowerShell as Administrator
 
 ### Linux/macOS Users
 
-- Use the `Makefile` for convenient commands
-- All `make` commands work out of the box
-- Bash scripts in `scripts/` directory can be run directly
+**Available Bash Scripts:**
+- `./scripts/setup.sh` - Initial setup (first time only)
+- `./scripts/start.sh` - Deploy/start the platform
+- `./scripts/stop.sh` - Stop the platform
+- `./scripts/check-health.sh` - Health checks
+- `./scripts/cleanup.sh` - Complete cleanup
+
+**Advanced:**
+- For convenience, you can use `make` commands which wrap these scripts
+- Run `make help` to see all available make targets
+- No additional drivers needed for Minikube
 
 ## Summary
 
