@@ -1,6 +1,15 @@
 # Examples Directory
 
-This directory contains tested, production-ready example code for working with LDP.
+This directory contains **reference examples** and **template code** for working with LDP.
+
+## Important: This Directory is Optional
+
+**The `examples/` directory is for learning and reference only. You can:**
+- ✅ **Copy examples** to the appropriate folders and modify them for your needs
+- ✅ **Delete this entire directory** if you want to start fresh without examples
+- ✅ **Keep it** as a reference library for tested code patterns
+
+**The LDP platform does not require this directory to function.**
 
 ## Structure
 
@@ -24,14 +33,29 @@ examples/
 └── README.md                     # This file
 ```
 
+## How to Use These Examples
+
+**Important**: Never run code directly from `examples/`. Always copy to the appropriate location first:
+
+| Example Type | Copy To | Purpose |
+|-------------|---------|---------|
+| Spark jobs | `spark/jobs/` | Data processing jobs |
+| Airflow DAGs | `airflow/dags/` | Workflow orchestration |
+| Scripts | `scripts/` | Utility scripts |
+
 ## Quick Start
 
-All examples are ready to run. Start by running them in this order:
+Follow these steps to try the examples:
 
 ### 1. MinIO Operations (Storage)
 
+**Copy and run:**
 ```bash
-python examples/minio_operations.py
+# Copy to scripts directory
+cp examples/minio_operations.py scripts/
+
+# Run it
+python scripts/minio_operations.py
 ```
 
 **What it does:**
@@ -42,8 +66,13 @@ python examples/minio_operations.py
 
 ### 2. Simple Spark Job (Processing)
 
+**Copy and run:**
 ```bash
-make spark-submit APP=examples/spark_job.py
+# Copy to Spark jobs directory
+cp examples/spark_job.py spark/jobs/
+
+# Submit to Spark
+make spark-submit APP=spark/jobs/spark_job.py
 ```
 
 **What it does:**
@@ -53,8 +82,13 @@ make spark-submit APP=examples/spark_job.py
 
 ### 3. Iceberg CRUD (Table Management)
 
+**Copy and run:**
 ```bash
-make spark-submit APP=examples/iceberg_crud.py
+# Copy to Spark jobs directory
+cp examples/iceberg_crud.py spark/jobs/
+
+# Submit to Spark
+make spark-submit APP=spark/jobs/iceberg_crud.py
 ```
 
 **What it does:**
@@ -93,9 +127,12 @@ make airflow-trigger DAG=simple_example
 
 **Use case:** Ingesting daily data from external sources into your data lake
 
-**Deploy:**
+**To use:**
 ```bash
+# Copy to Airflow DAGs directory
 cp examples/dags/data_ingestion/ingest_daily.py airflow/dags/
+
+# Wait for Airflow to detect it
 ```
 
 ### Data Transformation Pipeline
@@ -110,9 +147,12 @@ cp examples/dags/data_ingestion/ingest_daily.py airflow/dags/
 
 **Use case:** Daily batch processing of raw data
 
-**Deploy:**
+**To use:**
 ```bash
+# Copy to Airflow DAGs directory
 cp examples/dags/data_transformation/transform_pipeline.py airflow/dags/
+
+# Wait for Airflow to detect it
 ```
 
 ## Testing Examples
@@ -154,37 +194,45 @@ make test
 pytest examples/tests/integration/test_iceberg_tables.py
 ```
 
-## How to Use These Examples
+## Working with Examples
 
-### Approach 1: Copy and Run
+### Approach 1: Copy and Modify (Recommended)
 
-Perfect for learning:
+Best for learning and building new features:
 
 ```bash
-# Copy example
+# 1. Copy the example
 cp examples/simple_dag.py airflow/dags/my_first_dag.py
 
-# Modify for your use case
-# Deploy and run
+# 2. Edit the copied file
+vim airflow/dags/my_first_dag.py
+
+# 3. Run/deploy it
 ```
 
-### Approach 2: Use as Templates
+### Approach 2: Use as Reference Only
 
 For building custom pipelines:
 
-1. Read the example code
+1. Read the example code in `examples/`
 2. Understand the pattern
-3. Create your own version
+3. Write your own from scratch in the appropriate directory
 4. Reference examples when stuck
 
-### Approach 3: Extend Examples
+### Approach 3: Start Fresh Without Examples
 
-Add features to existing examples:
+If you prefer to start with a clean slate:
 
-1. Copy example to your working directory
-2. Add your custom logic
-3. Keep the tested foundation
-4. Test thoroughly
+```bash
+# Remove the entire examples directory
+rm -rf examples/
+
+# The LDP platform will continue to work normally
+# Build your own code in:
+# - spark/jobs/
+# - airflow/dags/
+# - scripts/
+```
 
 ## Example Code Patterns
 
@@ -320,12 +368,14 @@ logging.info(f"Write completed to {table_name}")
 
 ## Best Practices
 
-1. **Always test locally first** - Use `make spark-submit` or `python` to test
-2. **Use the tested examples** - They're proven to work
-3. **Keep credentials separate** - Use environment variables
-4. **Add error handling** - Don't let pipelines fail silently
-5. **Make tasks idempotent** - Safe to re-run
-6. **Use proper logging** - For debugging and monitoring
+1. **Never run from examples/ directly** - Always copy to the appropriate folder first
+2. **Use examples as templates** - Copy, then modify for your needs
+3. **Keep examples/ as reference** - Or delete it if you prefer a clean start
+4. **Test locally first** - Use `make spark-submit` or `python` to test
+5. **Keep credentials separate** - Use environment variables
+6. **Add error handling** - Don't let pipelines fail silently
+7. **Make tasks idempotent** - Safe to re-run
+8. **Use proper logging** - For debugging and monitoring
 
 ## Next Steps
 
