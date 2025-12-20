@@ -192,7 +192,7 @@ kubernetes-version: 1.34.0
 
 ### Python Version
 ```yaml
-python-version: '3.11'
+python-version: '3.13'
 ```
 
 ## Troubleshooting CI Failures
