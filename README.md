@@ -53,12 +53,29 @@ LDP gives you a realistic local environment to develop and test before deploying
 - **Apache Iceberg** - Modern table format with ACID transactions
 - **Jupyter** - Interactive development environment
 
+## 📚 Getting Started Tutorial
+
+**New to LDP?** Start with our comprehensive tutorial:
+
+👉 **[Getting Started Tutorial](docs/getting-started-tutorial.md)** - Complete hands-on guide with tested examples
+
+The tutorial covers:
+- ✅ Platform setup for Windows, Linux, and macOS
+- ✅ Working with MinIO (S3-compatible storage)
+- ✅ Processing data with Spark
+- ✅ Managing Iceberg tables (ACID transactions, time travel)
+- ✅ Orchestrating workflows with Airflow
+- ✅ Building your own data pipelines
+- ✅ Production-ready examples and best practices
+
+**All tutorial code is tested and ready to use!**
+
 ## Quick Start
 
 LDP works on **macOS**, **Windows**, and **Linux**. Choose your platform:
 
-- **[macOS](docs/platform-guides/macos.md)** - Use Homebrew and native tools
 - **[Windows](docs/platform-guides/windows.md)** - Use PowerShell scripts and Chocolatey/winget
+- **[macOS](docs/platform-guides/macos.md)** - Use Homebrew and native tools
 - **[Linux](docs/setup-guide.md#linux-setup)** - Standard package managers
 
 ### Prerequisites
@@ -376,7 +393,34 @@ This copies all examples to their respective directories for testing and learnin
 
 ## Documentation
 
-See the **[Documentation Index](docs/)** for detailed guides, architecture documentation, and troubleshooting.
+### Getting Started
+- **[📚 Getting Started Tutorial](docs/getting-started-tutorial.md)** - **START HERE!** Complete hands-on guide
+- [Setup Guide](docs/setup-guide.md) - Detailed installation instructions
+- [Writing Code Guide](docs/writing-code.md) - Best practices for developing pipelines
+- [Platform Guides](docs/platform-guides/) - Windows, macOS, Linux specific guides
+
+### Understanding LDP
+- [Project Structure](docs/project-structure.md) - Directory layout and organization
+- [Hive vs Iceberg](docs/hive-vs-iceberg.md) - Why we use Iceberg
+- [Iceberg Catalog](docs/iceberg-hadoop-catalog.md) - HadoopCatalog explained
+
+### Operations & Deployment
+- [Production Guide](docs/production-guide.md) - Deploying to production
+- [CI/CD Testing](docs/ci-testing.md) - Automated testing documentation
+- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
+
+### Directory READMEs
+Each major directory has its own README explaining its purpose:
+- [airflow/](airflow/README.md) - Airflow DAG development
+- [spark/](spark/README.md) - Spark job development
+- [examples/](examples/README.md) - Example code library
+- [docker/](docker/README.md) - Custom Docker images
+- [config/](config/README.md) - Configuration files
+- [terraform/](terraform/README.md) - Infrastructure as Code
+- [scripts/](scripts/README.md) - Utility scripts
+- [tests/](tests/README.md) - Testing strategies
+
+See the **[Documentation Index](docs/)** for the complete list.
 
 ## Contributing
 
@@ -388,6 +432,32 @@ See the **[Documentation Index](docs/)** for detailed guides, architecture docum
 ## License
 
 MIT License
+
+## Recent Updates
+
+### December 2024
+
+**🎉 Major Documentation Update**
+- Added comprehensive [Getting Started Tutorial](docs/getting-started-tutorial.md) with tested examples
+- Added README files to all major directories explaining their purpose
+- Cross-platform support documentation (Windows PowerShell + Linux/macOS Bash)
+- Examples directory is now clearly optional and can be deleted if desired
+
+**🔧 Dependency Updates**
+- Fixed: Pinned s3fs==2024.12.0 and fsspec==2024.12.0 to avoid yanked PyPI versions
+- Updated: Python 3.13, Airflow 3.1.5, PySpark 4.0.1
+- Updated: NumPy 2.3.5, Pandas 2.3.3, PyArrow 22.0.0
+- See [UPGRADE-PLAN-2025](docs/UPGRADE-PLAN-2025.md) for migration details
+
+**📝 Documentation Improvements**
+- Clarified that LDP uses Minikube + Terraform (not docker-compose)
+- Added Windows-first documentation with PowerShell scripts
+- Tutorial uses actual scripts instead of make commands for clarity
+- Added examples of Iceberg CRUD, MinIO operations, and Airflow DAGs
+
+**🗑️ Cleanup**
+- Removed Hive configuration (LDP uses Iceberg only)
+- Clarified examples/ directory is optional reference material
 
 ## Support
 
