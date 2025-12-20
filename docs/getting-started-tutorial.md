@@ -46,6 +46,13 @@ You should see all containers running.
 
 Let's walk through a complete data pipeline using the tested example code provided in the `examples/` directory.
 
+**Important**: The `examples/` directory contains reference code that should **never be run directly**. Always copy examples to the appropriate location first:
+- Spark jobs → `spark/jobs/`
+- Airflow DAGs → `airflow/dags/`
+- Scripts → `scripts/`
+
+This keeps the examples clean as reference material and teaches you the proper workflow.
+
 ### Example 1: Working with MinIO (Object Storage)
 
 MinIO provides S3-compatible object storage for your data lake.
@@ -117,9 +124,18 @@ if __name__ == "__main__":
 ```
 
 **To run this example:**
-```bash
-python examples/minio_operations.py
-```
+
+1. First, copy it to your working directory:
+   ```bash
+   cp examples/minio_operations.py scripts/
+   ```
+
+2. Then run it:
+   ```bash
+   python scripts/minio_operations.py
+   ```
+
+**Note**: Never run code directly from `examples/` - always copy it to the appropriate location first. This keeps the examples clean as reference material.
 
 ### Example 2: Processing Data with Spark
 
@@ -178,10 +194,18 @@ if __name__ == "__main__":
 ```
 
 **To run this example:**
-```bash
-# Submit to Spark cluster
-make spark-submit APP=examples/spark_job.py
-```
+
+1. First, copy it to the Spark jobs directory:
+   ```bash
+   cp examples/spark_job.py spark/jobs/
+   ```
+
+2. Then submit to the Spark cluster:
+   ```bash
+   make spark-submit APP=spark/jobs/spark_job.py
+   ```
+
+**Note**: Always copy examples to `spark/jobs/` before running, not from `examples/` directly.
 
 ### Example 3: Iceberg Tables (ACID Transactions)
 
@@ -227,9 +251,16 @@ spark.sql("SELECT * FROM local.demo.users.history").show()
 ```
 
 **To run this example:**
-```bash
-make spark-submit APP=examples/iceberg_crud.py
-```
+
+1. First, copy it to the Spark jobs directory:
+   ```bash
+   cp examples/iceberg_crud.py spark/jobs/
+   ```
+
+2. Then submit to the Spark cluster:
+   ```bash
+   make spark-submit APP=spark/jobs/iceberg_crud.py
+   ```
 
 ### Example 4: Airflow DAG (Workflow Orchestration)
 
@@ -285,19 +316,21 @@ with DAG(
     task1 >> task2 >> task3
 ```
 
-**To deploy this DAG:**
+**To run this example:**
 
-1. Copy the DAG file to the Airflow DAGs folder:
+1. **First, copy** the DAG file to the Airflow DAGs folder:
    ```bash
    cp examples/simple_dag.py airflow/dags/
    ```
 
-2. The DAG will automatically appear in the Airflow UI within a few minutes
+2. Wait for Airflow to detect it (1-2 minutes)
 
 3. Trigger the DAG from the Airflow UI or CLI:
    ```bash
    make airflow-trigger DAG=simple_example
    ```
+
+**Important**: DAGs must be in `airflow/dags/` to be discovered by Airflow. Never reference `examples/` directly in your DAG paths.
 
 ## Production-Ready Examples
 
@@ -329,6 +362,15 @@ def upload_to_minio(**context):
     )
 ```
 
+**To use this example:**
+
+1. **Copy to your DAGs directory:**
+   ```bash
+   cp examples/dags/data_ingestion/ingest_daily.py airflow/dags/
+   ```
+
+2. Wait for Airflow to detect it, then trigger from the UI
+
 ### Data Transformation Pipeline
 
 **Reference**: `examples/dags/data_transformation/transform_pipeline.py`
@@ -352,6 +394,15 @@ transform_raw_data = SparkSubmitOperator(
 )
 ```
 
+**To use this example:**
+
+1. **Copy to your DAGs directory:**
+   ```bash
+   cp examples/dags/data_transformation/transform_pipeline.py airflow/dags/
+   ```
+
+2. Wait for Airflow to detect it, then trigger from the UI
+
 ## Building Your Own Pipeline
 
 Now that you've seen the examples, here's how to build your own pipeline:
@@ -366,17 +417,25 @@ Now that you've seen the examples, here's how to build your own pipeline:
 
 ### Step 2: Create Your Spark Job
 
-1. Create a new Python file in `spark/jobs/`
-2. Use the `examples/spark_job.py` as a template
-3. Implement your data transformations
-4. Test locally: `make spark-submit APP=spark/jobs/your_job.py`
+1. Copy an example as a starting point:
+   ```bash
+   cp examples/spark_job.py spark/jobs/my_job.py
+   ```
+2. Edit `spark/jobs/my_job.py` with your transformations
+3. Test it:
+   ```bash
+   make spark-submit APP=spark/jobs/my_job.py
+   ```
 
 ### Step 3: Create Your Airflow DAG
 
-1. Create a new Python file in `airflow/dags/`
-2. Use `examples/simple_dag.py` or production examples as templates
-3. Define your tasks and dependencies
-4. Deploy and test
+1. Copy an example as a starting point:
+   ```bash
+   cp examples/simple_dag.py airflow/dags/my_pipeline.py
+   ```
+2. Edit `airflow/dags/my_pipeline.py` with your logic
+3. Airflow will automatically detect it
+4. Test and monitor in the Airflow UI
 
 ### Step 4: Monitor and Debug
 
@@ -418,12 +477,19 @@ See `examples/tests/spark/test_data_quality.py` for testing patterns.
 
 ## Best Practices
 
-### 1. Use Iceberg for All Tables
+### 1. Never Run Code Directly from examples/
+- **Always copy** example code to the proper location before running
+- Spark jobs: Copy to `spark/jobs/`
+- Airflow DAGs: Copy to `airflow/dags/`
+- Scripts: Copy to `scripts/`
+- This keeps examples clean as reference and prevents accidental modifications
+
+### 2. Use Iceberg for All Tables
 - ACID transactions prevent data corruption
 - Schema evolution allows changes without breaking queries
 - Time travel enables auditing and rollback
 
-### 2. Organize Your Data in MinIO
+### 3. Organize Your Data in MinIO
 ```
 datalake/
 ├── raw/           # Unprocessed data
@@ -432,12 +498,12 @@ datalake/
 └── archive/       # Historical data
 ```
 
-### 3. Make Your DAGs Idempotent
+### 4. Make Your DAGs Idempotent
 - Tasks should produce the same result when re-run
 - Use date parameters for partitioning
 - Clean up before writing (or use upserts)
 
-### 4. Use the Tested Examples
+### 5. Use the Tested Examples
 - All code in `examples/` is tested and working
 - Copy and modify rather than starting from scratch
 - Run tests: `make test`
