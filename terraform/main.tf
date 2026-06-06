@@ -74,13 +74,23 @@ module "spark" {
 resource "kubernetes_deployment_v1" "jupyter" {
   depends_on = [module.spark, module.minio]
 
+  # The jupyter/pyspark-notebook image is large (~4GB); on a constrained
+  # node (e.g. minikube in CI) the initial pull can exceed the provider's
+  # default 10m rollout wait. Give it more headroom. See issue #36 for the
+  # durable fix (pinning a smaller image).
+  timeouts {
+    create = "20m"
+    update = "20m"
+  }
+
   metadata {
     name      = "jupyter"
     namespace = kubernetes_namespace_v1.ldp.metadata[0].name
   }
 
   spec {
-    replicas = 1
+    replicas                  = 1
+    progress_deadline_seconds = 1200
 
     selector {
       match_labels = {
