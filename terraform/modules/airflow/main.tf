@@ -35,16 +35,21 @@ resource "helm_release" "airflow" {
       replicas: 1
       allowPodLogReading: true
 
+    # ttlSecondsAfterFinished MUST exceed the helm_release timeout below (900s).
+    # Otherwise, under image-pull contention the migration job can finish early
+    # while Helm is still waiting on the slower webserver/scheduler pods; the job
+    # is then TTL-reaped before Helm's wait_for_jobs status check runs, which
+    # fails the release with: jobs.batch "airflow-run-airflow-migrations" not found.
     migrateDatabaseJob:
       enabled: true
       useHelmHooks: false
       applyCustomEnv: false
-      ttlSecondsAfterFinished: 300
+      ttlSecondsAfterFinished: 1800
 
     createUserJob:
       useHelmHooks: false
       applyCustomEnv: false
-      ttlSecondsAfterFinished: 300
+      ttlSecondsAfterFinished: 1800
 
     postgresql:
       enabled: false
