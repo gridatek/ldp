@@ -1,4 +1,4 @@
-# Airflow providers (Airflow 3.1 compatible)
+# Airflow providers (Airflow 3.0 compatible)
 apache-airflow-providers-apache-spark>=5.0.0
 apache-airflow-providers-amazon>=9.0.0
 

@@ -58,9 +58,11 @@ class IcebergTableOperator(BaseOperator):
     def _get_spark_conf(self) -> Dict[str, str]:
         """Get Spark configuration for Iceberg."""
         return {
-            'spark.jars.packages': 'org.apache.iceberg:iceberg-spark-runtime-4.0_2.13:1.10.0,'
-                                   'org.apache.hadoop:hadoop-aws:3.4.1',
+            'spark.jars.packages': 'org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.10.0,'
+                                   'org.apache.hadoop:hadoop-aws:3.3.4',
             'spark.sql.extensions': 'org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions',
+            'spark.sql.catalog.spark_catalog': 'org.apache.iceberg.spark.SparkSessionCatalog',
+            'spark.sql.catalog.spark_catalog.type': 'hive',
             'spark.sql.catalog.local': 'org.apache.iceberg.spark.SparkCatalog',
             'spark.sql.catalog.local.type': 'hadoop',
             'spark.sql.catalog.local.warehouse': self.warehouse_path,
