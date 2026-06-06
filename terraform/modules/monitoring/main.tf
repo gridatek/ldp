@@ -1,5 +1,12 @@
 # Prometheus deployment for metrics collection
 resource "kubernetes_deployment_v1" "prometheus" {
+  # On a constrained node (e.g. minikube in CI) image-pull contention can
+  # push the rollout past the provider's default 10m wait. Give it headroom.
+  timeouts {
+    create = "20m"
+    update = "20m"
+  }
+
   metadata {
     name      = "prometheus"
     namespace = var.namespace
@@ -9,7 +16,8 @@ resource "kubernetes_deployment_v1" "prometheus" {
   }
 
   spec {
-    replicas = 1
+    replicas                  = 1
+    progress_deadline_seconds = 1200
 
     selector {
       match_labels = {
@@ -194,6 +202,13 @@ resource "kubernetes_config_map_v1" "prometheus_config" {
 
 # Grafana deployment for visualization
 resource "kubernetes_deployment_v1" "grafana" {
+  # On a constrained node (e.g. minikube in CI) image-pull contention can
+  # push the rollout past the provider's default 10m wait. Give it headroom.
+  timeouts {
+    create = "20m"
+    update = "20m"
+  }
+
   metadata {
     name      = "grafana"
     namespace = var.namespace
@@ -203,7 +218,8 @@ resource "kubernetes_deployment_v1" "grafana" {
   }
 
   spec {
-    replicas = 1
+    replicas                  = 1
+    progress_deadline_seconds = 1200
 
     selector {
       match_labels = {

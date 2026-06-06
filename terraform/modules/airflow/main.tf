@@ -76,7 +76,7 @@ resource "helm_release" "airflow" {
     EOT
   ]
 
-  timeout       = 900 # Increased for CI environment (15 minutes)
+  timeout       = 1500 # Increased for CI image-pull contention (25 minutes)
   wait          = true
   wait_for_jobs = true
 }

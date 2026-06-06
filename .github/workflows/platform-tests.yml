@@ -369,7 +369,7 @@ jobs:
         run: |
           cd terraform
           terraform apply -var-file=environments/local.tfvars -auto-approve
-        timeout-minutes: 15
+        timeout-minutes: 30
 
       - name: Wait for Pods
         run: |
