@@ -33,7 +33,7 @@ resource "kubernetes_stateful_set_v1" "spark_master" {
 
         container {
           name    = "spark-master"
-          image   = "apache/spark:4.0.1"
+          image   = "apache/spark:3.5.0"
           command = ["/opt/spark/bin/spark-class"]
           args    = ["org.apache.spark.deploy.master.Master"]
 
@@ -156,7 +156,7 @@ resource "kubernetes_deployment_v1" "spark_worker" {
       spec {
         container {
           name    = "spark-worker"
-          image   = "apache/spark:4.0.1"
+          image   = "apache/spark:3.5.0"
           command = ["/opt/spark/bin/spark-class"]
           args    = ["org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
 
