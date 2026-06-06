@@ -162,3 +162,5 @@ build/
 # Local development
 local/
 scratch/
+# Claude Code harness state
+.claude/
